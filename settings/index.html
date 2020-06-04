@@ -28,10 +28,14 @@
         <div class="field row">
             <p><button id="view"><span data-i18n="settings.View"></span></button></p>
         </div>
+        <div class="field row">
+            <p><button id="check"><span data-i18n="settings.CheckForUpdates"></span></button></p>
+        </div>
     </fieldset>
 
     <script type="text/javascript">
         var viewButton = document.getElementById('view');
+        var checkButton = document.getElementById('check');
         var autoNotifyElement = document.getElementById('autoNotify');
         var autoUpdateElement = document.getElementById('autoUpdate');
 
@@ -66,6 +70,18 @@
 
             viewButton.addEventListener('click', function (e) {
                 Homey.openURL('https://stablemicrosystems.com/index.html');
+            });
+
+            checkButton.addEventListener('click', function (e) {
+                Homey.api('POST', '/CheckNow/', {
+                    notify: true
+                }, function (err, result) {
+                    if (err) {
+                        return Homey.alert(err);
+                    } else {
+                        return Homey.alert(result);
+                    }
+                });
             });
         };
     </script>

@@ -4,7 +4,8 @@
         "autoNotify": "Notify when update available",
         "autoUpdate": "Update apps automatically",
         "Store": "Store",
-        "View": "View"
+        "View": "View",
+        "CheckForUpdates": "Check For Updates"
     },
     "Update_available_for": "Update available for ",
     "from": " from ",
