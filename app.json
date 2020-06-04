@@ -1,0 +1,27 @@
+{
+  "id": "com.community.store",
+  "version": "0.0.1",
+  "compatibility": ">=2.0.0",
+  "sdk": 2,
+  "name": {
+    "en": "Community Store Checker",
+    "nl": "Community Store Checker"
+  },
+  "description": {
+    "en": "Check for app updates in the community store"
+  },
+  "category": [
+    "internet"
+  ],
+  "permissions": [
+    "homey:manager:api"
+  ],
+  "images": {
+    "large": "/assets/images/large.png",
+    "small": "/assets/images/small.png"
+  },
+  "author": {
+    "name": "Adrian Rockall",
+    "email": "ady@rockall.plus.com"
+  }
+}

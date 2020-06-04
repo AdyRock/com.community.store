@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+
+<head>
+    <link rel="stylesheet" type="text/css" href="lwsa.css">
+
+    <!-- The '/homey.js' script must be included in your settings view to work -->
+    <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
+</head>
+
+<body>
+    <fieldset>
+        <legend><span data-i18n="settings.Settings"></span></legend>
+
+        <div class="field row">
+            <label for="autoNotify"><span data-i18n="settings.autoNotify"></span></label>
+            <input id="autoNotify" type="checkbox" value="notify" />
+        </div>
+        <div class="field row">
+            <label for="autoUpdate"><span data-i18n="settings.autoUpdate"></span></label>
+            <input id="autoUpdate" type="checkbox" value="update" />
+        </div>
+    </fieldset>
+
+    <fieldset>
+        <legend><span data-i18n="settings.Store"></span></legend>
+
+        <div class="field row">
+            <p><button id="view"><span data-i18n="settings.View"></span></button></p>
+        </div>
+    </fieldset>
+
+    <script type="text/javascript">
+        var viewButton = document.getElementById('view');
+        var autoNotifyElement = document.getElementById('autoNotify');
+        var autoUpdateElement = document.getElementById('autoUpdate');
+
+        // a method named 'onHomeyReady' must be present in your code
+        function onHomeyReady(Homey) {
+
+            Homey.get('autoNotify', function (err, autoNotify) {
+                if (err) return Homey.alert(err);
+                autoNotifyElement.checked = autoNotify;
+            });
+
+            Homey.get('autoUpdate', function (err, autoUpdate) {
+                if (err) return Homey.alert(err);
+                autoUpdateElement.checked = autoUpdate;
+            });
+
+
+            // Tell Homey we're ready to be displayed
+            Homey.ready();
+
+            autoNotifyElement.addEventListener('click', function (e) {
+                Homey.set('autoNotify', autoNotifyElement.checked, function (err) {
+                    if (err) return Homey.alert(err);
+                });
+            });
+
+            autoUpdateElement.addEventListener('click', function (e) {
+                Homey.set('autoUpdate', autoUpdateElement.checked, function (err) {
+                    if (err) return Homey.alert(err);
+                });
+            });
+
+            viewButton.addEventListener('click', function (e) {
+                Homey.openURL('https://stablemicrosystems.com/index.html');
+            });
+        };
+    </script>
+</body>
+
+</html>

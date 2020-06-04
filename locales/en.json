@@ -1,0 +1,15 @@
+{
+    "settings": {
+        "Settings": "Settings",
+        "autoNotify": "Notify when update available",
+        "autoUpdate": "Update apps automatically",
+        "Store": "Store",
+        "View": "View"
+    },
+    "Update_available_for": "Update available for ",
+    "from": " from ",
+    "to": " to ",
+    "Failed_to_update": "Failed to update ",
+    "updated_from": " updated from ",
+    "Store_not_available": "Store not available"
+}
