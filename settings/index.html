@@ -2,10 +2,16 @@
 <html>
 
 <head>
-    <link rel="stylesheet" type="text/css" href="lwsa.css">
-
     <!-- The '/homey.js' script must be included in your settings view to work -->
     <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
+    <style>
+        label.a {
+            display: inline-block;
+            width: 225px;
+            height: 15px;
+            padding: 5px;
+        }
+    </style>
 </head>
 
 <body>
@@ -16,7 +22,7 @@
             <label for="autoNotify"><span data-i18n="settings.autoNotify"></span></label>
             <input id="autoNotify" type="checkbox" value="notify" />
         </div>
-        <div class="field row">
+        <div class="field row" hidden>
             <label for="autoUpdate"><span data-i18n="settings.autoUpdate"></span></label>
             <input id="autoUpdate" type="checkbox" value="update" />
         </div>
@@ -31,6 +37,11 @@
         <div class="field row">
             <p><button id="check"><span data-i18n="settings.CheckForUpdates"></span></button></p>
         </div>
+    </fieldset>
+
+    <fieldset>
+        <legend>Available Updates</legend>
+        <div id="appSection"></div>
     </fieldset>
 
     <script type="text/javascript">
@@ -52,9 +63,14 @@
                 autoUpdateElement.checked = autoUpdate;
             });
 
+            getUpdates();
 
             // Tell Homey we're ready to be displayed
             Homey.ready();
+
+            Homey.on('settings.set', function () {
+                getUpdates();
+            });
 
             autoNotifyElement.addEventListener('click', function (e) {
                 Homey.set('autoNotify', autoNotifyElement.checked, function (err) {
@@ -69,21 +85,45 @@
             });
 
             viewButton.addEventListener('click', function (e) {
-                Homey.openURL('https://stablemicrosystems.com/index.html');
+                Homey.openURL('https://homey.app/en-gb/apps/');
             });
 
             checkButton.addEventListener('click', function (e) {
+                document.getElementById('appSection').innerHTML = "Checking, please wait...";
                 Homey.api('POST', '/CheckNow/', {
                     notify: true
                 }, function (err, result) {
                     if (err) {
                         return Homey.alert(err);
-                    } else {
-                        return Homey.alert(result);
                     }
                 });
             });
         };
+
+        function addApp(url, appName) {
+            console.log("addApp");
+            var section = document.getElementById('appSection').innerHTML;
+
+            document.getElementById('appSection').innerHTML = section +
+                '<div class="field row"><p><label class="a">' +
+                appName + '</label><button onClick="Homey.openURL(' + "'" + url + "'" + ')">View</button></p></div>';
+
+        }
+
+        function getUpdates() {
+            document.getElementById('appSection').innerHTML = "";
+            Homey.get('updateList', function (err, updateList) {
+                if (err) return Homey.alert(err);
+                if (updateList.length == 0) {
+                    document.getElementById('appSection').innerHTML = "No updates";
+                } else {
+                    document.getElementById('appSection').innerHTML = "";
+                    updateList.forEach(element => {
+                        addApp(element.url, element.name);
+                    });
+                }
+            });
+        }
     </script>
 </body>
 

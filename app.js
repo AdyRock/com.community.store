@@ -10,6 +10,10 @@ class MyApp extends Homey.App {
 
 	onInit() {
 		this.log('MyApp is running...');
+		this.checking = false;
+
+		this.updateList = [];
+		Homey.ManagerSettings.set('updateList', this.updateList);
 
 		// Do first check for updates after 5 seconds so the app has a chance to load
 		setTimeout(this.checkForUpdates.bind(this), 5000);
@@ -31,20 +35,33 @@ class MyApp extends Homey.App {
 	}
 
 	async checkNow(notify, update) {
-		this.log("checkForUpdates");
+		if (!this.checking) {
+			this.checking = true;
+			try {
+				this.log("checkForUpdates");
 
-		// Get the list of installed apps
-		const api = await HomeyAPI.forCurrentHomey();
-		let apps = await api.apps.getApps();
-		let promises = [];
+				this.updateList = [];
 
-		// Check each app defined in the object
-		for (let [key, value] of Object.entries(apps)) {
-			promises.push(this.compareStoreVersion(key, value, notify, update));
+				// Get the list of installed apps
+				const api = await HomeyAPI.forCurrentHomey();
+				let apps = await api.apps.getApps();
+				let promises = [];
+
+				// Check each app defined in the object
+				for (let [key, value] of Object.entries(apps)) {
+					promises.push(this.compareStoreVersion(key, value, notify, update));
+				}
+
+				// Wait for all the checks to complete
+				await Promise.all(promises);
+
+				Homey.ManagerSettings.set('updateList', this.updateList);
+				this.updateList = [];
+			} catch (err) {
+				console.log(err);
+			}
+			this.checking = false;
 		}
-
-		// Wait for all the checks to complete
-		await Promise.all(promises);
 	}
 
 	// Compare version strings of the format x.x.x where x is a number >= 0
@@ -73,14 +90,28 @@ class MyApp extends Homey.App {
 		// If the app was found in the community store and is a different version, then process it
 		if (storeAppInfo && (this.compareVersions(AppData.version, storeAppInfo.testVersion) == -1)) {
 			// The installed version is lower than the test version
-			if (Notify) {
-				let data = "";
-				if (this.compareVersions(AppData.version, storeAppInfo.releaseVersion) == -1) {
+			let data = "";
+			if (this.compareVersions(AppData.version, storeAppInfo.releaseVersion) == -1) {
+				if (Notify) {
 					data = Homey.__("Update_available_for") + AppData.name + Homey.__("from") + AppData.version + Homey.__("to") + storeAppInfo.releaseVersion;
-				} else {
+				}
+				let AppName = AppData.name.replace(/ /g, "-");
+				this.updateList.push({
+					url: "https://homey.app/en-gb/app/" + AppId + "/" + AppName + "/",
+					name: AppData.name + " (" + storeAppInfo.releaseVersion + ")"
+				})
+			} else {
+				if (Notify) {
 					data = Homey.__("Update_available_for") + AppData.name + Homey.__("from") + AppData.version + Homey.__("to") + " Test: " + storeAppInfo.testVersion;
 				}
+				let AppName = AppData.name.replace(/ /g, "-");
+				this.updateList.push({
+					url: "https://homey.app/en-gb/app/" + AppId + "/" + AppName + "/test/",
+					name: AppData.name + " (test " + storeAppInfo.releaseVersion + ")"
+				})
+			}
 
+			if (Notify) {
 				Homey.ManagerNotifications.registerNotification({
 					excerpt: data
 				}, (e, n) => {});
