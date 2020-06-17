@@ -20,7 +20,7 @@ module.exports = [
         method: 'POST',
         path: '/CheckNow/',
         fn: function (args, callback) {
-            Homey.app.checkNow(true, false);
+            Homey.app.checkNow(false, false);
             return callback(null, "ok");
         }
     }
