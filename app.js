@@ -38,7 +38,7 @@ class MyApp extends Homey.App {
 		if (!this.checking) {
 			this.checking = true;
 			try {
-				this.log("checkForUpdates");
+				this.log("Check for updates");
 
 				this.updateList = [];
 
@@ -49,7 +49,9 @@ class MyApp extends Homey.App {
 
 				// Check each app defined in the object
 				for (let [key, value] of Object.entries(apps)) {
-					promises.push(this.compareStoreVersion(key, value, notify, update));
+					console.log("Checking: ", key, " (", value.name + ") Current version: ", value.version);
+					promises.push( this.compareCommunityStoreVersion(key, value, notify, update));
+					promises.push(this.compareAthomStoreVersion(key, value, notify, update));
 				}
 
 				// Wait for all the checks to complete
@@ -60,6 +62,7 @@ class MyApp extends Homey.App {
 			} catch (err) {
 				console.log(err);
 			}
+			this.log("***** Check Complete *****");
 			this.checking = false;
 		}
 	}
@@ -80,36 +83,22 @@ class MyApp extends Homey.App {
 		return 0;
 	}
 
-	// Compare the app installed version to the store version
-	async compareStoreVersion(AppId, AppData, Notify, Update) {
-		console.log(AppId, " (", AppData.name + "): ", AppData.version);
+	// Compare the app installed version to the Community store version
+	async compareCommunityStoreVersion(AppId, AppData, Notify, Update) {
+		// get the Athom store version information of the app
+		let storeAppInfo = await this.getCommunityStoreAppInfo(AppId, AppData.name);
 
-		// get the store version information of the app
-		let storeAppInfo = await this.getAthomStoreAppInfo(AppId, AppData.name);
-
-		// If the app was found in the community store and is a different version, then process it
-		if (storeAppInfo && (this.compareVersions(AppData.version, storeAppInfo.testVersion) == -1)) {
+		// If the app was found in the store and is a different version, then process it
+		if (storeAppInfo && (this.compareVersions(AppData.version, storeAppInfo.releaseVersion) == -1)) {
 			// The installed version is lower than the test version
 			let data = "";
-			if (this.compareVersions(AppData.version, storeAppInfo.releaseVersion) == -1) {
-				if (Notify) {
-					data = Homey.__("Update_available_for") + AppData.name + Homey.__("from") + AppData.version + Homey.__("to") + storeAppInfo.releaseVersion;
-				}
-				let AppName = AppData.name.replace(/ /g, "-");
-				this.updateList.push({
-					url: "https://homey.app/en-gb/app/" + AppId + "/" + AppName + "/",
-					name: AppData.name + " (" + storeAppInfo.releaseVersion + ")"
-				})
-			} else {
-				if (Notify) {
-					data = Homey.__("Update_available_for") + AppData.name + Homey.__("from") + AppData.version + Homey.__("to") + " Test: " + storeAppInfo.testVersion;
-				}
-				let AppName = AppData.name.replace(/ /g, "-");
-				this.updateList.push({
-					url: "https://homey.app/en-gb/app/" + AppId + "/" + AppName + "/test/",
-					name: AppData.name + " (test " + storeAppInfo.releaseVersion + ")"
-				})
+			if (Notify) {
+				data = "Community store: " + Homey.__("Update_available_for") + AppData.name + Homey.__("from") + AppData.version + Homey.__("to") + storeAppInfo.releaseVersion;
 			}
+			this.updateList.push({
+				url: "https://store.homey.community/app/" + AppId,
+				name: AppData.name + " (" + storeAppInfo.releaseVersion + ")"
+			})
 
 			if (Notify) {
 				Homey.ManagerNotifications.registerNotification({
@@ -136,6 +125,75 @@ class MyApp extends Homey.App {
 		}
 	}
 
+	// Get information about the app in the Community store
+	async getCommunityStoreAppInfo(AppId) {
+		try {
+			let appURL = "https://4c23v5xwtc.execute-api.eu-central-1.amazonaws.com/production/apps/" + AppId;
+			const options = {
+				headers: {
+					'x-api-key': Homey.env.API_KEY
+				}
+			}
+			let res = await this.GetURL(appURL, options);
+			res = JSON.parse(res);
+			if (res.versions) {
+				console.log("Community reply: ", res.versions[0].version);
+				return {
+					releaseVersion: res.versions[0].version,
+					testVersion: 0
+				};
+			} else {
+				console.log("Community reply: ", res);
+			}
+
+		} catch (err) {
+			console.log("Community store error: ", AppId, ": ", err);
+		}
+
+		return null;
+	}
+
+
+	// Compare the app installed version to the Athom store version
+	async compareAthomStoreVersion(AppId, AppData, Notify, Update) {
+		// get the Athom store version information of the app
+		let storeAppInfo = await this.getAthomStoreAppInfo(AppId, AppData.name);
+
+		// If the app was found in the store and is a different version, then process it
+		if (storeAppInfo) {
+			console.log("Athom store versions, Test: ", storeAppInfo.testVersion, " - Release: ", storeAppInfo.releaseVersion);
+			if (this.compareVersions(AppData.version, storeAppInfo.testVersion) == -1) {
+				// The installed version is lower than the test version
+				let data = "";
+				if (this.compareVersions(AppData.version, storeAppInfo.releaseVersion) == -1) {
+					if (Notify) {
+						data = Homey.__("Update_available_for") + AppData.name + Homey.__("from") + AppData.version + Homey.__("to") + storeAppInfo.releaseVersion;
+					}
+					let AppName = AppData.name.replace(/ /g, "-");
+					this.updateList.push({
+						url: "https://homey.app/en-gb/app/" + AppId + "/" + AppName + "/",
+						name: AppData.name + " (" + storeAppInfo.releaseVersion + ")"
+					})
+				} else {
+					if (Notify) {
+						data = Homey.__("Update_available_for") + AppData.name + Homey.__("from") + AppData.version + Homey.__("to") + " Test: " + storeAppInfo.testVersion;
+					}
+					let AppName = AppData.name.replace(/ /g, "-");
+					this.updateList.push({
+						url: "https://homey.app/en-gb/app/" + AppId + "/" + AppName + "/test/",
+						name: AppData.name + " (test " + storeAppInfo.releaseVersion + ")"
+					})
+				}
+
+				if (Notify) {
+					Homey.ManagerNotifications.registerNotification({
+						excerpt: data
+					}, (e, n) => {});
+				}
+			}
+		}
+	}
+
 	// Get information about the app in the Athom store
 	// If there is no test version then both version numbers will be the same
 	async getAthomStoreAppInfo(AppId, AppName) {
@@ -147,13 +205,14 @@ class MyApp extends Homey.App {
 
 			AppName = AppName.replace(/ /g, "-");
 			let appURL = "https://homey.app/en-gb/app/" + AppId + "/" + AppName + "/";
-			let res = await this.GetURL(appURL);
+			const options = {};
+			let res = await this.GetURL(appURL, options);
 			let rv = regex.exec(res)[0];
 			let tv = rv;
 
 			try {
 				// try the test version, which may not exist
-				res = await this.GetURL(appURL + "test/");
+				res = await this.GetURL(appURL + "test/", options);
 				tv = regexTest.exec(res)[0];
 			} catch (err) {
 				// Don't worry if this fails as it is expected when there is no test version
@@ -165,7 +224,7 @@ class MyApp extends Homey.App {
 			};
 
 		} catch (err) {
-			this.log(AppId, ": ", err);
+			console.log("Athom store error: ", AppId, ": ", err);
 		}
 
 		return null;
@@ -178,10 +237,10 @@ class MyApp extends Homey.App {
 		return Homey.__("Store_not_available"); // Update failed
 	}
 
-	async GetURL(url) {
+	async GetURL(url, Options) {
 		return new Promise((resolve, reject) => {
 			try {
-				https.get(url, (res) => {
+				https.get(url, Options, (res) => {
 					if (res.statusCode === 200) {
 						let body = [];
 						res.on('data', (chunk) => {
@@ -208,11 +267,11 @@ class MyApp extends Homey.App {
 						reject("HTTPS Error: " + res.statusCode + ", " + message);
 					}
 				}).on('error', (err) => {
-					this.log("HTTPS Catch: " + err);
+					console.log("HTTPS Catch: " + err);
 					reject("HTTPS Catch: " + err);
 				});
 			} catch (e) {
-				this.log(e);
+				console.log(e);
 				reject("HTTPS Error: " + e);
 			}
 		});
