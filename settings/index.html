@@ -32,7 +32,10 @@
         <legend><span data-i18n="settings.Store"></span></legend>
 
         <div class="field row">
-            <p><button id="view"><span data-i18n="settings.View"></span></button></p>
+            <p><button id="viewC"><span data-i18n="settings.ViewCommunity"></span></button></p>
+        </div>
+        <div class="field row">
+            <p><button id="viewA"><span data-i18n="settings.ViewAthom"></span></button></p>
         </div>
         <div class="field row">
             <p><button id="check"><span data-i18n="settings.CheckForUpdates"></span></button></p>
@@ -45,7 +48,8 @@
     </fieldset>
 
     <script type="text/javascript">
-        var viewButton = document.getElementById('view');
+        var viewAButton = document.getElementById('viewA');
+        var viewCButton = document.getElementById('viewC');
         var checkButton = document.getElementById('check');
         var autoNotifyElement = document.getElementById('autoNotify');
         var autoUpdateElement = document.getElementById('autoUpdate');
@@ -80,8 +84,12 @@
                 Homey.set('autoUpdate', autoUpdateElement.checked);
             });
 
-            viewButton.addEventListener('click', function (e) {
+            viewAButton.addEventListener('click', function (e) {
                 Homey.openURL('https://homey.app/en-gb/apps/');
+            });
+
+            viewCButton.addEventListener('click', function (e) {
+                Homey.openURL('https://store.homey.community/');
             });
 
             checkButton.addEventListener('click', function (e) {

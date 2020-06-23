@@ -40,6 +40,8 @@ class MyApp extends Homey.App {
 			try {
 				this.log("Check for updates");
 
+				// Get the array of apps and version numbers from the Community store
+				this.communityPromise = this.fetchCommunityVersions();
 				this.updateList = [];
 
 				// Get the list of installed apps
@@ -49,8 +51,8 @@ class MyApp extends Homey.App {
 
 				// Check each app defined in the object
 				for (let [key, value] of Object.entries(apps)) {
-					console.log("Checking: ", key, " (", value.name + ") Current version: ", value.version);
-					promises.push( this.compareCommunityStoreVersion(key, value, notify, update));
+					//console.log("Checking: ", key, " (", value.name + ") Current version: ", value.version);
+					promises.push(this.compareCommunityStoreVersion(key, value, notify, update));
 					promises.push(this.compareAthomStoreVersion(key, value, notify, update));
 				}
 
@@ -83,14 +85,37 @@ class MyApp extends Homey.App {
 		return 0;
 	}
 
+	// Fetches an array of appId, version from the Community store and put it in this.communityData
+	async fetchCommunityVersions() {
+		try {
+			this.communityData = [];
+			let appURL = "https://4c23v5xwtc.execute-api.eu-central-1.amazonaws.com/production/apps/latest";
+			const options = {
+				headers: {
+					'x-api-key': Homey.env.API_KEY
+				}
+			}
+			let res = await this.GetURL(appURL, options);
+			this.communityData = JSON.parse(res).body;
+			//console.log("Community Data: ", this.communityData);
+		} catch (err) {
+			console.log("Community store error: ", err);
+		}
+	}
+
 	// Compare the app installed version to the Community store version
 	async compareCommunityStoreVersion(AppId, AppData, Notify, Update) {
-		// get the Athom store version information of the app
+
+		await this.communityPromise;
+
+		//console.log("Checking Community store for: ", AppId);
+
+		// get the Community store version information of the app
 		let storeAppInfo = await this.getCommunityStoreAppInfo(AppId, AppData.name);
 
 		// If the app was found in the store and is a different version, then process it
 		if (storeAppInfo && (this.compareVersions(AppData.version, storeAppInfo.releaseVersion) == -1)) {
-			// The installed version is lower than the test version
+			// The installed version is lower than the current version
 			let data = "";
 			if (Notify) {
 				data = "Community store: " + Homey.__("Update_available_for") + AppData.name + Homey.__("from") + AppData.version + Homey.__("to") + storeAppInfo.releaseVersion;
@@ -107,7 +132,7 @@ class MyApp extends Homey.App {
 			}
 
 			if (Update && (this.compareVersions(AppData.version, storeAppInfo.releaseVersion) == -1)) {
-				// The installed version is lower than the release version
+				// The installed version is lower than the current version
 				// Ask the community store to update the app
 				const err = await this.updateCommunityStoreApp(AppId);
 				if (err) {
@@ -125,30 +150,24 @@ class MyApp extends Homey.App {
 		}
 	}
 
-	// Get information about the app in the Community store
+	// Get the version number for the specified app from the previously retrieved array
 	async getCommunityStoreAppInfo(AppId) {
-		try {
-			let appURL = "https://4c23v5xwtc.execute-api.eu-central-1.amazonaws.com/production/apps/" + AppId;
-			const options = {
-				headers: {
-					'x-api-key': Homey.env.API_KEY
-				}
-			}
-			let res = await this.GetURL(appURL, options);
-			res = JSON.parse(res);
-			if (res.versions) {
-				console.log("Community reply: ", res.versions[0].version);
+		if (this.communityData) {
+			const appInfo = this.communityData.find(element => element.id == AppId);
+			if (appInfo) {
+				//console.log("App in Community store: ", appInfo.id, " - Version: ", appInfo.version);
 				return {
-					releaseVersion: res.versions[0].version,
-					testVersion: 0
+					releaseVersion: appInfo.version,
+					testVersion: appInfo.version
 				};
-			} else {
-				console.log("Community reply: ", res);
 			}
-
-		} catch (err) {
-			console.log("Community store error: ", AppId, ": ", err);
+			// else{
+			// 	console.log("App not in Community store");
+			// }
 		}
+		// else{
+		// 	console.log("No Community store data");
+		// }
 
 		return null;
 	}
@@ -161,7 +180,7 @@ class MyApp extends Homey.App {
 
 		// If the app was found in the store and is a different version, then process it
 		if (storeAppInfo) {
-			console.log("Athom store versions, Test: ", storeAppInfo.testVersion, " - Release: ", storeAppInfo.releaseVersion);
+			//console.log("Athom store versions, Test: ", storeAppInfo.testVersion, " - Release: ", storeAppInfo.releaseVersion);
 			if (this.compareVersions(AppData.version, storeAppInfo.testVersion) == -1) {
 				// The installed version is lower than the test version
 				let data = "";
