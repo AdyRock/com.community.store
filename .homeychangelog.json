@@ -5,4 +5,8 @@
   "0.0.3": {
     "en": "Now checks the Community store as well"
   },
+  "0.0.4": {
+    "en": "Added Flow trigger for app update available"
+  }
+}
   
