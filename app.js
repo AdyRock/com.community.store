@@ -101,7 +101,7 @@ class MyApp extends Homey.App {
 
 				// Check each app defined in the object
 				for (let [key, value] of Object.entries(apps)) {
-					console.log("Origin: ", value.origin, ";\tChannel: ", value.channel, ";\tUpdateAvailable: ", value.updateAvailable, ";\t", value.name);
+					//console.log("Origin: ", value.origin, ";\tChannel: ", value.channel, ";\tUpdateAvailable: ", value.updateAvailable, ";\t", value.name);
 					promises.push(this.compareCommunityStoreVersion(key, value, notify, update));
 					if (value.origin == 'appstore') {
 						promises.push(this.compareAthomStoreVersion(key, value, notify, update));
