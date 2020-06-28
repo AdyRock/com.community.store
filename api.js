@@ -23,6 +23,14 @@ module.exports = [
             Homey.app.checkNow(false, false);
             return callback(null, "ok");
         }
+    },
+    {
+        method: 'POST',
+        path: '/SetTime/',
+        fn: function (args, callback) {
+            Homey.app.updateTimeout();
+            return callback(null, "ok");
+        }
     }
 
     //   {

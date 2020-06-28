@@ -15,11 +15,21 @@ class MyApp extends Homey.App {
 		this.updateList = [];
 		Homey.ManagerSettings.set('updateList', this.updateList);
 
+		this.updateHr = Homey.ManagerSettings.get('updateHr');
+		this.updateMin = Homey.ManagerSettings.get('updateMin');
+
+		if (!this.updateHr) {
+			this.updateHr = 8;
+			this.updateMin = 0;
+			Homey.ManagerSettings.set('updateHr', this.updateHr);
+			Homey.ManagerSettings.set('updateMin', this.updateMin);
+		}
+
 		// Do first check for updates after 5 seconds so the app has a chance to load
 		setTimeout(this.checkForUpdates.bind(this), 5000);
 	};
 
-	firUpdateTrigger(Name, OldVersion, NewVersion) {
+	async fireUpdateTrigger(Name, OldVersion, NewVersion) {
 		let appUpdateTrigger = new Homey.FlowCardTrigger('update_available');
 		let tokens = {
 			'update_app_name': Name,
@@ -30,8 +40,7 @@ class MyApp extends Homey.App {
 			.register()
 			.trigger(tokens)
 			.catch(this.error)
-			.then(this.log);
-
+			.then(this.log("Trigger Complete"));
 	}
 
 	// Check each installed app against the community store to determine if any updates are available
@@ -40,13 +49,39 @@ class MyApp extends Homey.App {
 		let notify = Homey.ManagerSettings.get('autoNotify');
 		let update = Homey.ManagerSettings.get('autoUpdate');
 
-		// No need to go through the apps if neither option is set
-		if (notify || update) {
-			if (await this.checkNow(notify, update)) {
-				// Setup timer for next check
-				setTimeout(this.checkForUpdates.bind(this), UPDATE_INTERVAL);
-			}
+		if (await this.checkNow(notify, update)) {
+			this.updateTimeout()
 		}
+	}
+
+	updateTimeout() {
+		if (this.timeoutID)
+		{
+			clearTimeout(this.timeoutID);
+		}
+		
+		// Calculate the time until the required check time
+		this.updateHr = Homey.ManagerSettings.get('updateHr');
+		this.updateMin = Homey.ManagerSettings.get('updateMin');
+		const nowTime = new Date(Date.now());
+		let newTime = new Date(Date.now());
+		if (nowTime.getHours() > this.updateHr) {
+			// next time is tomorrow
+			newTime.setDate(newTime.getDate() + 1);
+		}
+		else if ((nowTime.getHours() == this.updateHr) && (nowTime.getMinutes() >= this.updateMin)) {
+			// next time is tomorrow
+			newTime.setDate(newTime.getDate() + 1);
+		}
+
+		newTime.setHours(this.updateHr);
+		newTime.setMinutes(this.updateMin);
+		newTime = newTime - nowTime;
+
+		console.log("Next check in (ms): ", newTime.valueOf())
+
+		// Setup timer for next check
+		this.timeoutID = setTimeout(this.checkForUpdates.bind(this), newTime.valueOf());
 	}
 
 	async checkNow(notify, update) {
@@ -66,9 +101,11 @@ class MyApp extends Homey.App {
 
 				// Check each app defined in the object
 				for (let [key, value] of Object.entries(apps)) {
-					//console.log("Checking: ", key, " (", value.name + ") Current version: ", value.version);
+					console.log("Origin: ", value.origin, ";\tChannel: ", value.channel, ";\tUpdateAvailable: ", value.updateAvailable, ";\t", value.name);
 					promises.push(this.compareCommunityStoreVersion(key, value, notify, update));
-					promises.push(this.compareAthomStoreVersion(key, value, notify, update));
+					if (value.origin == 'appstore') {
+						promises.push(this.compareAthomStoreVersion(key, value, notify, update));
+					}
 				}
 
 				// Wait for all the checks to complete
@@ -81,7 +118,10 @@ class MyApp extends Homey.App {
 			}
 			this.log("***** Check Complete *****");
 			this.checking = false;
+			return true;
 		}
+
+		return false;
 	}
 
 	// Compare version strings of the format x.x.x where x is a number >= 0
@@ -140,7 +180,7 @@ class MyApp extends Homey.App {
 				name: AppData.name + " (" + storeAppInfo.releaseVersion + ")"
 			})
 
-			this.firUpdateTrigger(AppData.name, AppData.version, storeAppInfo.releaseVersion);
+			this.fireUpdateTrigger(AppData.name, AppData.version, storeAppInfo.releaseVersion);
 
 			if (Notify) {
 				Homey.ManagerNotifications.registerNotification({
@@ -212,7 +252,7 @@ class MyApp extends Homey.App {
 						name: AppData.name + " (" + storeAppInfo.releaseVersion + ")"
 					})
 
-					this.firUpdateTrigger(AppData.name, AppData.version, storeAppInfo.releaseVersion);
+					this.fireUpdateTrigger(AppData.name, AppData.version, storeAppInfo.releaseVersion);
 
 				} else {
 					if (Notify) {
@@ -224,7 +264,7 @@ class MyApp extends Homey.App {
 						name: AppData.name + " (test " + storeAppInfo.testVersion + ")"
 					})
 
-					this.firUpdateTrigger(AppData.name, AppData.version, storeAppInfo.testVersion);
+					this.fireUpdateTrigger(AppData.name, AppData.version, storeAppInfo.testVersion);
 				}
 
 				if (Notify) {
