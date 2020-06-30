@@ -6,7 +6,7 @@
     "en": "Now checks the Community store as well"
   },
   "0.0.4": {
-    "en": "Added Flow trigger for app update available; The time to check for updates can now be set."
+    "en": "Added Flow trigger for app update available.\nThe time to check for updates can now be set."
   }
 }
   
