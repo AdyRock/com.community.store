@@ -6,10 +6,13 @@
     "en": "Now checks the Community store as well"
   },
   "0.0.4": {
-    "en": "Added Flow trigger for app update available.\nThe time to check for updates can now be set."
+    "en": "Added Flow trigger for app update available.\nThe time to check for updates can now be set.\nAthom store is only checked for apps installed from the store"
   },
   "0.0.5": {
     "en": "Added 'Store' tag to the flow trigger that can be either 'Community Store' or 'Athom Store'.\nAdd 'test ' to the 'New Version' tag value when the new version is a test version."
+  },
+  "0.0.6": {
+    "en": "Notifications and triggers are now only sent once per app version\nChanged config page notification method for improved reliability and error reporting"
   }
 }
   

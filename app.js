@@ -15,6 +15,11 @@ class MyApp extends Homey.App {
 		this.updateList = [];
 		Homey.ManagerSettings.set('updateList', this.updateList);
 
+		this.notifiedList = Homey.ManagerSettings.get('notifiedList');
+		if (!this.notifiedList) {
+			this.notifiedList = [];
+		}
+
 		this.updateHr = Homey.ManagerSettings.get('updateHr');
 		this.updateMin = Homey.ManagerSettings.get('updateMin');
 
@@ -44,6 +49,34 @@ class MyApp extends Homey.App {
 			.then(this.log("Trigger Complete"));
 	}
 
+	// Returns true if this app version has already been checked
+	checkNotifiedList(AppId, Source, Version) {
+		const appIndex = this.notifiedList.findIndex(element => (element.Id == AppId) && (element.Source == Source));
+		if (appIndex >= 0) {
+			// An entry for this app has been found so check if it is the same version as already reported
+			if (this.notifiedList[appIndex].Version == Version)  {
+				// Version matched previous check
+				console.log( "App: ", AppId, " Version: ", Version, " From: ", Source, " Already notified.")
+				return true;
+			}
+
+			// Different version to previous check so update the array values
+			this.notifiedList[appIndex].Version = Version;
+			return false;
+		}
+
+		// App not in the list so it has not been checked yet
+		let newAppInfo = {
+			'Id': AppId,
+			'Source': Source,
+			'Version': Version,
+		}
+
+		this.notifiedList.push(newAppInfo);
+
+		return false;
+	}
+
 	// Check each installed app against the community store to determine if any updates are available
 	async checkForUpdates() {
 		// Get the app settings
@@ -56,11 +89,10 @@ class MyApp extends Homey.App {
 	}
 
 	updateTimeout() {
-		if (this.timeoutID)
-		{
+		if (this.timeoutID) {
 			clearTimeout(this.timeoutID);
 		}
-		
+
 		// Calculate the time until the required check time
 		this.updateHr = Homey.ManagerSettings.get('updateHr');
 		this.updateMin = Homey.ManagerSettings.get('updateMin');
@@ -69,8 +101,7 @@ class MyApp extends Homey.App {
 		if (nowTime.getHours() > this.updateHr) {
 			// next time is tomorrow
 			newTime.setDate(newTime.getDate() + 1);
-		}
-		else if ((nowTime.getHours() == this.updateHr) && (nowTime.getMinutes() >= this.updateMin)) {
+		} else if ((nowTime.getHours() == this.updateHr) && (nowTime.getMinutes() >= this.updateMin)) {
 			// next time is tomorrow
 			newTime.setDate(newTime.getDate() + 1);
 		}
@@ -88,6 +119,7 @@ class MyApp extends Homey.App {
 	async checkNow(notify, update) {
 		if (!this.checking) {
 			this.checking = true;
+			let status = "";
 			try {
 				this.log("Check for updates");
 
@@ -110,15 +142,20 @@ class MyApp extends Homey.App {
 				}
 
 				// Wait for all the checks to complete
-				await Promise.all(promises);
+				await Promise.allSettled(promises);
 
 				Homey.ManagerSettings.set('updateList', this.updateList);
 				this.updateList = [];
 			} catch (err) {
 				console.log(err);
+				status = err.message;
 			}
+
+			Homey.ManagerSettings.set('notifiedList', this.notifiedList);
+
 			this.log("***** Check Complete *****");
 			this.checking = false;
+			Homey.ManagerApi.realtime('com.community.store.showUpdates', {'status': status});	
 			return true;
 		}
 
@@ -172,21 +209,23 @@ class MyApp extends Homey.App {
 		// If the app was found in the store and is a different version, then process it
 		if (storeAppInfo && (this.compareVersions(AppData.version, storeAppInfo.releaseVersion) == -1)) {
 			// The installed version is lower than the current version
-			let data = "";
-			if (Notify) {
-				data = "Community store: " + Homey.__("Update_available_for") + AppData.name + Homey.__("from") + AppData.version + Homey.__("to") + storeAppInfo.releaseVersion;
-			}
 			this.updateList.push({
 				url: "https://store.homey.community/app/" + AppId,
 				name: AppData.name + " (" + storeAppInfo.releaseVersion + ")"
 			})
 
-			this.fireUpdateTrigger(AppData.name, Homey.__("community_store"), AppData.version, storeAppInfo.releaseVersion);
+			if (!this.checkNotifiedList(AppId, "Community", storeAppInfo.releaseVersion)) {
+				let data = "";
+				if (Notify) {
+					data = "Community store: " + Homey.__("Update_available_for") + AppData.name + Homey.__("from") + AppData.version + Homey.__("to") + storeAppInfo.releaseVersion;
+				}
+				this.fireUpdateTrigger(AppData.name, Homey.__("community_store"), AppData.version, storeAppInfo.releaseVersion);
 
-			if (Notify) {
-				Homey.ManagerNotifications.registerNotification({
-					excerpt: data
-				}, (e, n) => {});
+				if (Notify) {
+					Homey.ManagerNotifications.registerNotification({
+						excerpt: data
+					}, (e, n) => {});
+				}
 			}
 
 			// if (Update && (this.compareVersions(AppData.version, storeAppInfo.releaseVersion) == -1)) {
@@ -244,31 +283,37 @@ class MyApp extends Homey.App {
 				let data = "";
 				if (this.compareVersions(AppData.version, storeAppInfo.releaseVersion) == -1) {
 					// The installed version is lower than the release version
-					if (Notify) {
-						data = Homey.__("Update_available_for") + AppData.name + Homey.__("from") + AppData.version + Homey.__("to") + storeAppInfo.releaseVersion;
+					if (!this.checkNotifiedList(AppId, "Athom-Production", storeAppInfo.releaseVersion)) {
+						if (Notify) {
+							data = Homey.__("Update_available_for") + AppData.name + Homey.__("from") + AppData.version + Homey.__("to") + storeAppInfo.releaseVersion;
+						}
+
+						this.fireUpdateTrigger(AppData.name, Homey.__("athom_store"), AppData.version, storeAppInfo.releaseVersion);
 					}
+
 					let AppName = AppData.name.replace(/ /g, "-");
 					this.updateList.push({
 						url: "https://homey.app/en-gb/app/" + AppId + "/" + AppName + "/",
 						name: AppData.name + " (" + storeAppInfo.releaseVersion + ")"
 					})
 
-					this.fireUpdateTrigger(AppData.name, Homey.__("athom_store"), AppData.version, storeAppInfo.releaseVersion);
-
 				} else {
-					if (Notify) {
-						data = Homey.__("Update_available_for") + AppData.name + Homey.__("from") + AppData.version + Homey.__("to") + " Test: " + storeAppInfo.testVersion;
+					if (!this.checkNotifiedList(AppId, "Athom-Test", storeAppInfo.testVersion)) {
+						if (Notify) {
+							data = Homey.__("Update_available_for") + AppData.name + Homey.__("from") + AppData.version + Homey.__("to") + " Test: " + storeAppInfo.testVersion;
+						}
+
+						this.fireUpdateTrigger(AppData.name, Homey.__("athom_store"), AppData.version, "test " + storeAppInfo.testVersion);
 					}
+
 					let AppName = AppData.name.replace(/ /g, "-");
 					this.updateList.push({
 						url: "https://homey.app/en-gb/app/" + AppId + "/" + AppName + "/test/",
 						name: AppData.name + " (test " + storeAppInfo.testVersion + ")"
 					})
-
-					this.fireUpdateTrigger(AppData.name, Homey.__("athom_store"), AppData.version, "test " + storeAppInfo.testVersion);
 				}
 
-				if (Notify) {
+				if (data) {
 					Homey.ManagerNotifications.registerNotification({
 						excerpt: data
 					}, (e, n) => {});

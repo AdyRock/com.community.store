@@ -129,7 +129,10 @@
             // Tell Homey we're ready to be displayed
             Homey.ready();
 
-            Homey.on('settings.set', function () {
+            Homey.on('com.community.store.showUpdates', function (data) {
+                if (data.status){
+                    Homey.alert(data.status);
+                }
                 getUpdates();
             });
 
@@ -160,8 +163,8 @@
             });
 
             checkButton.addEventListener('click', function (e) {
-                document.getElementById('appSection').innerHTML = "Checking, please wait...";
                 Homey.unset('autoUpdate');
+                document.getElementById('appSection').innerHTML = "Checking, please wait...";
                 Homey.api('POST', '/CheckNow/', {
                     notify: true
                 }, function (err, result) {
