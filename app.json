@@ -1,6 +1,6 @@
 {
   "id": "com.community.store",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "compatibility": ">=2.0.0",
   "sdk": 2,
   "brandColor": "#FF7D4B",
@@ -42,6 +42,14 @@
             "type": "string",
             "title": {
               "en": "App Name"
+            },
+            "example": "Community Store Checker"
+          },
+          {
+            "name": "update_app_store",
+            "type": "string",
+            "title": {
+              "en": "Store"
             },
             "example": "Community Store"
           },

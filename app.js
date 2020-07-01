@@ -29,10 +29,11 @@ class MyApp extends Homey.App {
 		setTimeout(this.checkForUpdates.bind(this), 5000);
 	};
 
-	async fireUpdateTrigger(Name, OldVersion, NewVersion) {
+	async fireUpdateTrigger(Name, Store, OldVersion, NewVersion) {
 		let appUpdateTrigger = new Homey.FlowCardTrigger('update_available');
 		let tokens = {
 			'update_app_name': Name,
+			"update_app_store": Store,
 			'update_app_old_ver': OldVersion,
 			'update_app_new_ver': NewVersion
 		}
@@ -180,7 +181,7 @@ class MyApp extends Homey.App {
 				name: AppData.name + " (" + storeAppInfo.releaseVersion + ")"
 			})
 
-			this.fireUpdateTrigger(AppData.name, AppData.version, storeAppInfo.releaseVersion);
+			this.fireUpdateTrigger(AppData.name, Homey.__("community_store"), AppData.version, storeAppInfo.releaseVersion);
 
 			if (Notify) {
 				Homey.ManagerNotifications.registerNotification({
@@ -252,7 +253,7 @@ class MyApp extends Homey.App {
 						name: AppData.name + " (" + storeAppInfo.releaseVersion + ")"
 					})
 
-					this.fireUpdateTrigger(AppData.name, AppData.version, storeAppInfo.releaseVersion);
+					this.fireUpdateTrigger(AppData.name, Homey.__("athom_store"), AppData.version, storeAppInfo.releaseVersion);
 
 				} else {
 					if (Notify) {
@@ -264,7 +265,7 @@ class MyApp extends Homey.App {
 						name: AppData.name + " (test " + storeAppInfo.testVersion + ")"
 					})
 
-					this.fireUpdateTrigger(AppData.name, AppData.version, storeAppInfo.testVersion);
+					this.fireUpdateTrigger(AppData.name, Homey.__("athom_store"), AppData.version, "test " + storeAppInfo.testVersion);
 				}
 
 				if (Notify) {
@@ -357,10 +358,6 @@ class MyApp extends Homey.App {
 				reject("HTTPS Error: " + e);
 			}
 		});
-	}
-
-	addSomething(body) {
-
 	}
 }
 

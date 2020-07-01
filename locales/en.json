@@ -16,5 +16,7 @@
     "to": " to ",
     "Failed_to_update": "Failed to update ",
     "updated_from": " updated from ",
-    "Store_not_available": "Store not available"
+    "Store_not_available": "Store not available",
+    "community_store": "Community Store",
+    "athom_store": "Athom Store"
 }

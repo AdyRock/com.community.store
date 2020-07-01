@@ -7,6 +7,9 @@
   },
   "0.0.4": {
     "en": "Added Flow trigger for app update available.\nThe time to check for updates can now be set."
+  },
+  "0.0.5": {
+    "en": "Added 'Store' tag to the flow trigger that can be either 'Community Store' or 'Athom Store'.\nAdd 'test ' to the 'New Version' tag value when the new version is a test version."
   }
 }
   
