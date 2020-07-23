@@ -30,8 +30,8 @@ class MyApp extends Homey.App {
 			Homey.ManagerSettings.set('updateMin', this.updateMin);
 		}
 
-		// Do first check for updates after 5 seconds so the app has a chance to load
-		setTimeout(this.checkForUpdates.bind(this), 5000);
+		// Do first check for updates after 30 seconds so the app has a chance to load
+		setTimeout(this.checkForUpdates.bind(this), 30000);
 	};
 
 	async fireUpdateTrigger(Name, Store, OldVersion, NewVersion) {
