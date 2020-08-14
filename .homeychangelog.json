@@ -13,6 +13,9 @@
   },
   "0.0.6": {
     "en": "Notifications and triggers are now only sent once per app version\nChanged config page notification method for improved reliability and error reporting"
+  },
+  "0.0.7": {
+    "en": "Fix error in version number parser that found 10 to be less than 9"
   }
 }
   

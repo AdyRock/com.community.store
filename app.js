@@ -1,5 +1,9 @@
 'use strict';
 
+if (process.env.DEBUG === '1') {
+	require('inspector').open(9222, '0.0.0.0')
+}
+
 const Homey = require('homey');
 const HomeyAPI = require('athom-api').HomeyAPI;
 const https = require("https");
@@ -168,12 +172,12 @@ class MyApp extends Homey.App {
 		let vc1 = v1.split('.');
 		let vc2 = v2.split('.');
 
-		if (vc1[0] < vc2[0]) return -1;
-		if (vc1[0] > vc2[0]) return 1;
-		if (vc1[1] < vc2[1]) return -1;
-		if (vc1[1] > vc2[1]) return 1;
-		if (vc1[2] < vc2[2]) return -1;
-		if (vc1[2] > vc2[2]) return 1;
+		if (parseInt(vc1[0]) < parseInt(vc2[0])) return -1;
+		if (parseInt(vc1[0]) > parseInt(vc2[0])) return 1;
+		if (parseInt(vc1[1]) < parseInt(vc2[1])) return -1;
+		if (parseInt(vc1[1]) > parseInt(vc2[1])) return 1;
+		if (parseInt(vc1[2]) < parseInt(vc2[2])) return -1;
+		if (parseInt(vc1[2]) > parseInt(vc2[2])) return 1;
 
 		return 0;
 	}
