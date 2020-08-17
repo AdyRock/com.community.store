@@ -16,6 +16,9 @@
   },
   "0.0.7": {
     "en": "Fix error in version number parser that found 10 to be less than 9"
+  },
+  "0.0.8": {
+    "en": "Small memory optimisation"
   }
 }
   

@@ -150,6 +150,7 @@ class MyApp extends Homey.App {
 
 				Homey.ManagerSettings.set('updateList', this.updateList);
 				this.updateList = [];
+				this.communityData = [];
 			} catch (err) {
 				console.log(err);
 				status = err.message;
@@ -349,6 +350,8 @@ class MyApp extends Homey.App {
 			} catch (err) {
 				// Don't worry if this fails as it is expected when there is no test version
 			}
+
+			res = "";
 
 			return {
 				releaseVersion: rv,
