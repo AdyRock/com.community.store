@@ -126,9 +126,6 @@
 
             getUpdates();
 
-            // Tell Homey we're ready to be displayed
-            Homey.ready();
-
             Homey.on('com.community.store.showUpdates', function (data) {
                 if (data.status){
                     Homey.alert(data.status);
@@ -173,6 +170,9 @@
                     }
                 });
             });
+
+            // Tell Homey we're ready to be displayed
+            Homey.ready();
         };
 
         function addApp(url, appName) {
