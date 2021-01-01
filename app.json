@@ -1,6 +1,6 @@
 {
   "id": "com.community.store",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "compatibility": ">=2.0.0",
   "sdk": 2,
   "brandColor": "#FF7D4B",

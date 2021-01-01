@@ -19,6 +19,9 @@
   },
   "0.0.8": {
     "en": "Small memory optimisation"
+  },
+  "0.0.9": {
+    "en": "Fixed issue with apps that have illegal URI characters in their name (e.g. <-group->)"
   }
 }
   

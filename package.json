@@ -1,6 +1,6 @@
 {
   "name": "com.community.store",
-  "version": "0.0.3",
+  "version": "0.0.9",
   "main": "app.js",
   "devDependencies": {
     "homey": "^2.3.5"
