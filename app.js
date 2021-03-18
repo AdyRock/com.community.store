@@ -1,8 +1,9 @@
+/*jslint node: true */
 'use strict';
 
 if (process.env.DEBUG === '1')
 {
-    require('inspector').open(9222, '0.0.0.0', true)
+    require('inspector').open(9222, '0.0.0.0', true);
 }
 
 const Homey = require('homey');
@@ -41,7 +42,7 @@ class MyApp extends Homey.App
 
         // Do first check for updates after 30 seconds so the app has a chance to load
         setTimeout(this.checkForUpdates.bind(this), 30000);
-    };
+    }
 
     async fireUpdateTrigger(Name, Store, OldVersion, NewVersion)
     {
@@ -51,7 +52,7 @@ class MyApp extends Homey.App
             "update_app_store": Store,
             'update_app_old_ver': OldVersion,
             'update_app_new_ver': NewVersion
-        }
+        };
         appUpdateTrigger
             .register()
             .trigger(tokens)
@@ -69,7 +70,7 @@ class MyApp extends Homey.App
             if (this.notifiedList[appIndex].Version == Version)
             {
                 // Version matched previous check
-                console.log("App: ", AppId, " Version: ", Version, " From: ", Source, " Already notified.")
+                console.log("App: ", AppId, " Version: ", Version, " From: ", Source, " Already notified.");
                 return true;
             }
 
@@ -83,7 +84,7 @@ class MyApp extends Homey.App
             'Id': AppId,
             'Source': Source,
             'Version': Version,
-        }
+        };
 
         this.notifiedList.push(newAppInfo);
 
@@ -99,7 +100,7 @@ class MyApp extends Homey.App
 
         if (await this.checkNow(notify, update))
         {
-            this.updateTimeout()
+            this.updateTimeout();
         }
 
         if (global.gc)
@@ -146,7 +147,7 @@ class MyApp extends Homey.App
         newTime.setMinutes(this.updateMin);
         newTime = newTime - nowTime;
 
-        console.log("Next check in (ms): ", newTime.valueOf())
+        console.log("Next check in (ms): ", newTime.valueOf());
 
         // Setup timer for next check
         this.timeoutID = setTimeout(this.checkForUpdates.bind(this), newTime.valueOf());
@@ -237,10 +238,10 @@ class MyApp extends Homey.App
                 {
                     'x-api-key': Homey.env.API_KEY
                 }
-            }
+            };
             let res = await this.GetURL(appURL, options);
             this.communityData = JSON.parse(res).body;
-            //console.log("Community Data: ", this.communityData);
+            console.log("Community Data: ", this.communityData);
         }
         catch (err)
         {
@@ -267,7 +268,7 @@ class MyApp extends Homey.App
             {
                 url: "https://store.homey.community/app/" + AppId,
                 name: AppData.name + " (" + storeAppInfo.releaseVersion + ")"
-            })
+            });
 
             if (!this.checkNotifiedList(AppId, "Community", storeAppInfo.releaseVersion))
             {
@@ -363,7 +364,7 @@ class MyApp extends Homey.App
                     {
                         url: "https://homey.app/en-gb/app/" + AppId + "/" + AppName + "/",
                         name: AppData.name + " (" + storeAppInfo.releaseVersion + ")"
-                    })
+                    });
 
                 }
                 else
@@ -383,7 +384,7 @@ class MyApp extends Homey.App
                     {
                         url: "https://homey.app/en-gb/app/" + AppId + "/" + AppName + "/test/",
                         name: AppData.name + " (test " + storeAppInfo.testVersion + ")"
-                    })
+                    });
                 }
 
                 if (data)
@@ -395,19 +396,6 @@ class MyApp extends Homey.App
                 }
             }
         }
-    }
-
-    escapeHtml(text)
-    {
-        var map = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#039;'
-        };
-
-        return text.replace(/[&<>"']/g, function(m) { return map[m]; });
     }
 
     // Get information about the app in the Athom store
@@ -422,7 +410,7 @@ class MyApp extends Homey.App
         let tv = "";
 
         AppName = AppName.replace(/ /g, "-");
-        let appURL = this.escapeHtml("https://homey.app/en-gb/app/" + AppId + "/" + AppName + "/");
+        let appURL = encodeURI("https://homey.app/en-gb/app/" + AppId + "/" + AppName + "/");
         res = await this.GetURLorRedirect(appURL, {});
 
         if (res)
@@ -430,6 +418,10 @@ class MyApp extends Homey.App
             rv = regex.exec(res.res)[0];
             tv = rv;
             appURL = res.url;
+        }
+        else
+        {
+            console.log("Failed to get ", AppName, " -> ", appURL);
         }
 
         try
@@ -453,8 +445,6 @@ class MyApp extends Homey.App
             releaseVersion: rv,
             testVersion: tv
         };
-
-        return null;
     }
 
     // Send request to the community store to updated the app

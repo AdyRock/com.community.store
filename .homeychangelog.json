@@ -22,6 +22,9 @@
   },
   "0.0.9": {
     "en": "Fixed issue with apps that have illegal URI characters in their name (e.g. <-group->)"
+  },
+  "0.0.10": {
+    "en": "Fixed issue with apps that have illegal URI characters in their name (e.g. tado°)"
   }
 }
   
