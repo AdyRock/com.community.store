@@ -5,8 +5,7 @@
   "sdk": 2,
   "brandColor": "#FF7D4B",
   "name": {
-    "en": "Community Store Checker",
-    "nl": "Community Store Checker"
+    "en": "App Version Checker"
   },
   "description": {
     "en": "Check for app updates in the community store and Athom store"
