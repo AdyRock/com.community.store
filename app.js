@@ -382,7 +382,7 @@ class MyApp extends Homey.App
                     }
 
                     let AppName = AppData.name.replace(/ /g, "-");
-                    let url = encodeURI("https://homey.app/en-gb/app/" + AppId + "/" + AppName + "/");
+                    let url = encodeURI("https://homey.app/en-gb/app/" + AppId + "/" + AppName + "/test/");
                     this.updateList.push(
                     {
                         url: url,

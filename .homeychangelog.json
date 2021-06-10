@@ -31,6 +31,9 @@
   },
   "1.0.1": {
     "en": "Fixed (again) issue with apps that have illegal URI characters in their name (e.g. tado°)"
+  },
+  "1.0.2": {
+    "en": "Fixed missing /test/ introduced in last version"
   }
 }
   
