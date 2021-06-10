@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
 <svg
+   xmlns:nch="http://www.nchsoftware.com/drawpad/"
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -9,74 +8,14 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="210mm"
-   height="297mm"
-   viewBox="0 0 210 297"
+   height="1000"
    version="1.1"
-   id="svg8"
-   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
-   sodipodi:docname="icon.svg">
-  <defs
-     id="defs2">
-    <marker
-       inkscape:stockid="Arrow1Lstart"
-       orient="auto"
-       refY="0.0"
-       refX="0.0"
-       id="Arrow1Lstart"
-       style="overflow:visible"
-       inkscape:isstock="true">
-      <path
-         id="path4575"
-         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
-         style="fill-rule:evenodd;stroke:#009d00;stroke-width:1pt;stroke-opacity:1;fill:#00bf00;fill-opacity:1"
-         transform="scale(0.8) translate(12.5,0)" />
-    </marker>
-    <inkscape:path-effect
-       effect="powerstroke"
-       id="path-effect4573"
-       is_visible="true"
-       offset_points="0,0.13229166"
-       sort_points="true"
-       interpolator_type="CubicBezierJohan"
-       interpolator_beta="0.2"
-       start_linecap_type="zerowidth"
-       linejoin_type="extrp_arc"
-       miter_limit="4"
-       end_linecap_type="zerowidth" />
-    <inkscape:path-effect
-       effect="simplify"
-       id="path-effect4571"
-       is_visible="true"
-       steps="1"
-       threshold="0.000408163"
-       smooth_angles="360"
-       helper_size="0"
-       simplify_individual_paths="false"
-       simplify_just_coalesce="false"
-       simplifyindividualpaths="false"
-       simplifyJustCoalesce="false" />
-  </defs>
-  <sodipodi:namedview
-     id="base"
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:pageopacity="0.0"
-     inkscape:pageshadow="2"
-     inkscape:zoom="0.35"
-     inkscape:cx="-227.14286"
-     inkscape:cy="560"
-     inkscape:document-units="mm"
-     inkscape:current-layer="layer1"
-     showgrid="false"
-     inkscape:window-width="3840"
-     inkscape:window-height="2066"
-     inkscape:window-x="2869"
-     inkscape:window-y="-11"
-     inkscape:window-maximized="1" />
+   width="1000"
+   id="svg29"
+   sodipodi:docname="icon.svg"
+   inkscape:version="1.0.2 (e86c870879, 2021-01-15, custom)">
   <metadata
-     id="metadata5">
+     id="metadata35">
     <rdf:RDF>
       <cc:Work
          rdf:about="">
@@ -87,45 +26,133 @@
       </cc:Work>
     </rdf:RDF>
   </metadata>
+  <defs
+     id="defs33" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1943"
+     inkscape:window-height="1436"
+     id="namedview31"
+     showgrid="false"
+     inkscape:zoom="1.008"
+     inkscape:cx="500"
+     inkscape:cy="500"
+     inkscape:window-x="1202"
+     inkscape:window-y="322"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg29"
+     inkscape:document-rotation="0"
+     inkscape:pagecheckerboard="true"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
   <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
-     id="layer1">
+     id="g860"
+     transform="matrix(1.0515873,0,0,1.0565476,-29.761904,-37.698412)"
+     style="stroke-width:0.948709">
+    <rect
+       fill="rgb(255,255,255)"
+       fill-opacity="1"
+       height="1000"
+       id="background"
+       width="1000"
+       x="0"
+       y="0"
+       style="fill:none;stroke-width:0.900048" />
+    <circle
+       cx="503"
+       cy="500"
+       fill="#ffffff"
+       fill-opacity="1"
+       nch:colorstroke="rgba(0,0,0,255)"
+       stroke="#000000"
+       stroke-opacity="1"
+       stroke-width="94.8708"
+       id="ellipse3"
+       r="405"
+       style="fill:none" />
+    <polygon
+       fill="#000000"
+       fill-opacity="1"
+       nch:bounds="587.500,42.500,882.500,337.500"
+       nch:colorstroke="rgba(255,255,255,255)"
+       points="588,338 883,43 883,338 "
+       stroke="#ffffff"
+       stroke-miterlimit="10"
+       stroke-opacity="1"
+       stroke-width="4.74354"
+       id="polygon5" />
+    <polygon
+       fill="#000000"
+       fill-opacity="1"
+       nch:bounds="147.500,682.500,442.500,977.500"
+       nch:colorstroke="rgba(255,255,255,255)"
+       points="148,978 443,683 443,978 "
+       stroke="#ffffff"
+       stroke-miterlimit="10"
+       stroke-opacity="1"
+       stroke-width="4.74354"
+       transform="rotate(180,295,830)"
+       id="polygon7" />
     <text
-       xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:21.641716px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
-       x="74.355652"
-       y="266.32434"
-       id="text4545"
-       transform="scale(0.92498313,1.0811008)"><tspan
-         sodipodi:role="line"
-         id="tspan4543"
-         x="74.355652"
-         y="266.32434"
-         style="font-style:normal;font-variant:normal;font-stretch:normal;font-size:103.88023376px;font-family:'AR DELANEY';-inkscape-font-specification:'AR DELANEY, weight=101';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke-width:0.26458332">V</tspan></text>
+       dy="156.65277"
+       fill="#000000"
+       fill-opacity="1"
+       font-family="Impact"
+       font-size="162.055px"
+       height="74.7"
+       transform="scale(1.0141858,0.98601266)"
+       width="110.4"
+       x="246.49165"
+       y="314.22675"
+       id="text11"
+       style="stroke-width:4.69029"><tspan
+         x="246.49165"
+         id="tspan9"
+         style="stroke-width:4.74355">Version</tspan></text>
     <text
-       xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:42.37221527px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#1e1abe;fill-opacity:1;stroke:#007c00;stroke-width:0.26499999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       x="31.392015"
-       y="142.58696"
-       id="text4545-7"
-       transform="scale(1.054797,0.94804972)"><tspan
-         sodipodi:role="line"
-         id="tspan4543-9"
-         x="31.392015"
-         y="142.58696"
-         style="font-style:normal;font-variant:normal;font-stretch:normal;font-size:203.38664246px;font-family:'AR DELANEY';-inkscape-font-specification:'AR DELANEY, weight=101';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#1e1abe;fill-opacity:1;stroke:#007c00;stroke-width:0.26499999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1">V</tspan></text>
+       dy="156.65277"
+       fill="#000000"
+       fill-opacity="1"
+       font-family="Impact"
+       font-size="162.055px"
+       height="74.7"
+       transform="scale(1.0141858,0.98601266)"
+       width="15.3"
+       x="760.74493"
+       y="314.22675"
+       id="text15"
+       style="stroke-width:4.69029"><tspan
+         x="760.74493"
+         id="tspan13"
+         style="stroke-width:4.74355" /></text>
     <text
-       xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:16.52358246px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#007800;fill-opacity:1;stroke:none;stroke-width:0.26458332;"
-       x="85.137695"
-       y="205.84381"
-       id="text4567"
-       transform="scale(0.98700687,1.0131642)"><tspan
-         sodipodi:role="line"
-         id="tspan4565"
-         x="85.137695"
-         y="205.84381"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:79.31319427px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.26458332;fill:#007800;fill-opacity:1;">?</tspan></text>
+       dy="156.65277"
+       fill="#000000"
+       fill-opacity="1"
+       font-family="Impact"
+       font-size="162.055px"
+       height="38.1"
+       transform="scale(1.0141858,0.98601266)"
+       width="114.3"
+       x="225.42456"
+       y="511.93335"
+       id="text19"
+       style="stroke-width:4.69029"><tspan
+         x="225.42456"
+         id="tspan17"
+         style="stroke-width:4.74355">Checker</tspan></text>
+    <g
+       transform="scale(5)"
+       id="g25"
+       style="stroke-width:0.948709" />
   </g>
 </svg>
