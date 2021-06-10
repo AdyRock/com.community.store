@@ -27,7 +27,10 @@
     "en": "Fixed issue with apps that have illegal URI characters in their name (e.g. tado°)"
   },
   "1.0.0": {
-    "en": "Fixed issue with apps that have illegal URI characters in their name (e.g. tado°).\r\nRebranded to suit it's current role"
+    "en": "Rebranded to suit it's current role"
+  },
+  "1.0.1": {
+    "en": "Fixed (again) issue with apps that have illegal URI characters in their name (e.g. tado°)"
   }
 }
   

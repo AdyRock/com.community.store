@@ -360,9 +360,11 @@ class MyApp extends Homey.App
                     }
 
                     let AppName = AppData.name.replace(/ /g, "-");
+                    let url = encodeURI("https://homey.app/en-gb/app/" + AppId + "/" + AppName + "/");
+
                     this.updateList.push(
                     {
-                        url: "https://homey.app/en-gb/app/" + AppId + "/" + AppName + "/",
+                        url: url,
                         name: AppData.name + " (" + storeAppInfo.releaseVersion + ")"
                     });
 
@@ -380,9 +382,10 @@ class MyApp extends Homey.App
                     }
 
                     let AppName = AppData.name.replace(/ /g, "-");
+                    let url = encodeURI("https://homey.app/en-gb/app/" + AppId + "/" + AppName + "/");
                     this.updateList.push(
                     {
-                        url: "https://homey.app/en-gb/app/" + AppId + "/" + AppName + "/test/",
+                        url: url,
                         name: AppData.name + " (test " + storeAppInfo.testVersion + ")"
                     });
                 }
