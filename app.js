@@ -341,7 +341,7 @@ class MyApp extends Homey.App
         // If the app was found in the store and is a different version, then process it
         if (storeAppInfo)
         {
-            //console.log("Athom store versions, Test: ", storeAppInfo.testVersion, " - Release: ", storeAppInfo.releaseVersion);
+            console.log("Athom store versions (", AppData.name, "), Test: ", storeAppInfo.testVersion, " - Release: ", storeAppInfo.releaseVersion);
             if (this.compareVersions(AppData.version, storeAppInfo.testVersion) == -1)
             {
                 // The installed version is lower than the test version
@@ -430,8 +430,12 @@ class MyApp extends Homey.App
         try
         {
             // try the test version, which may not exist
-            res = await this.GetURL(appURL + "test/", {});
-            tv = regexTest.exec(res)[0];
+            res = await this.GetURLorRedirect(appURL + "test/", {});
+            if (res)
+            {
+                tv = regexTest.exec(res.res)[0];
+                console.log( "App test version = ", AppName, " tv = ", tv);
+            }
         }
         catch (err)
         {
@@ -460,16 +464,17 @@ class MyApp extends Homey.App
 
     async GetURLorRedirect(url, Options)
     {
+        let urlToUse = url;
         try
         {
-            return { url: url, res: await this.GetURL(url, Options) };
+            return { url: urlToUse, res: await this.GetURL(urlToUse, Options) };
         }
         catch (err)
         {
             if (err.source === "HTTPS Error" && err.code === 302)
             {
                 // Try again with the redirect location
-                url = "https://homey.app" + err.message;
+                urlToUse = "https://homey.app" + err.message;
             }
             else
             {
@@ -479,7 +484,7 @@ class MyApp extends Homey.App
 
         try
         {
-            return { url: url, res: await this.GetURL(url, Options) };
+            return { url: urlToUse, res: await this.GetURL(urlToUse, Options) };
         }
         catch (err)
         {
