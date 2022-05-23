@@ -37,6 +37,9 @@
   },
   "1.0.3": {
     "en": "Fixed missing redirect on some test urls"
+  },
+  "1.0.4": {
+    "en": "Removed all cached data from app to reduce memory usage"
   }
 }
   

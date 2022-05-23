@@ -20,14 +20,7 @@ class MyApp extends Homey.App
         this.log('MyApp is running...');
         this.checking = false;
 
-        this.updateList = [];
-        Homey.ManagerSettings.set('updateList', this.updateList);
-
-        this.notifiedList = Homey.ManagerSettings.get('notifiedList');
-        if (!this.notifiedList)
-        {
-            this.notifiedList = [];
-        }
+        Homey.ManagerSettings.set('updateList', []);
 
         this.updateHr = Homey.ManagerSettings.get('updateHr');
         this.updateMin = Homey.ManagerSettings.get('updateMin');
@@ -41,13 +34,13 @@ class MyApp extends Homey.App
         }
 
         // Do first check for updates after 30 seconds so the app has a chance to load
-        setTimeout(this.checkForUpdates.bind(this), 30000);
+        //setTimeout(this.checkForUpdates.bind(this), 30000);
     }
 
     async fireUpdateTrigger(Name, Store, OldVersion, NewVersion)
     {
-        let appUpdateTrigger = new Homey.FlowCardTrigger('update_available');
-        let tokens = {
+        const appUpdateTrigger = new Homey.FlowCardTrigger('update_available');
+        const tokens = {
             'update_app_name': Name,
             "update_app_store": Store,
             'update_app_old_ver': OldVersion,
@@ -61,21 +54,21 @@ class MyApp extends Homey.App
     }
 
     // Returns true if this app version has already been checked
-    checkNotifiedList(AppId, Source, Version)
+    checkNotifiedList(AppId, Source, Version, notifiedList)
     {
-        const appIndex = this.notifiedList.findIndex(element => (element.Id == AppId) && (element.Source == Source));
+        const appIndex = notifiedList.findIndex(element => (element.Id == AppId) && (element.Source == Source));
         if (appIndex >= 0)
         {
             // An entry for this app has been found so check if it is the same version as already reported
-            if (this.notifiedList[appIndex].Version == Version)
+            if (notifiedList[appIndex].Version == Version)
             {
                 // Version matched previous check
-                console.log("App: ", AppId, " Version: ", Version, " From: ", Source, " Already notified.");
+                //console.log("App: ", AppId, " Version: ", Version, " From: ", Source, " Already notified.");
                 return true;
             }
 
             // Different version to previous check so update the array values
-            this.notifiedList[appIndex].Version = Version;
+            notifiedList[appIndex].Version = Version;
             return false;
         }
 
@@ -86,7 +79,7 @@ class MyApp extends Homey.App
             'Version': Version,
         };
 
-        this.notifiedList.push(newAppInfo);
+        notifiedList.push(newAppInfo);
 
         return false;
     }
@@ -95,28 +88,12 @@ class MyApp extends Homey.App
     async checkForUpdates()
     {
         // Get the app settings
-        let notify = Homey.ManagerSettings.get('autoNotify');
-        let update = Homey.ManagerSettings.get('autoUpdate');
+        const notify = Homey.ManagerSettings.get('autoNotify');
+        const update = Homey.ManagerSettings.get('autoUpdate');
 
         if (await this.checkNow(notify, update))
         {
             this.updateTimeout();
-        }
-
-        if (global.gc)
-        {
-            try
-            {
-                global.gc();
-            }
-            catch (err)
-            {
-                console.error('ERROR: global.gc() failed:', err);
-            }
-        }
-        else
-        {
-            console.warn('WARNING: No GC hook! --expose-gc is not set!');
         }
     }
 
@@ -147,7 +124,7 @@ class MyApp extends Homey.App
         newTime.setMinutes(this.updateMin);
         newTime = newTime - nowTime;
 
-        console.log("Next check in (ms): ", newTime.valueOf());
+        //console.log("Next check in (ms): ", newTime.valueOf());
 
         // Setup timer for next check
         this.timeoutID = setTimeout(this.checkForUpdates.bind(this), newTime.valueOf());
@@ -158,47 +135,48 @@ class MyApp extends Homey.App
         if (!this.checking)
         {
             this.checking = true;
+            let notifiedList = await Homey.ManagerSettings.get('notifiedList');
+            if (!notifiedList)
+            {
+                notifiedList = [];
+            }
+    
             let status = "";
             try
             {
                 this.log("Check for updates");
 
                 // Get the array of apps and version numbers from the Community store
-                this.communityPromise = this.fetchCommunityVersions();
-                this.updateList = [];
+                const communityData = await this.fetchCommunityVersions();
+                const updateList = [];
 
                 // Get the list of installed apps
                 const api = await HomeyAPI.forCurrentHomey();
-                let apps = await api.apps.getApps();
-                let promises = [];
+                const apps = await api.apps.getApps();
 
                 // Check each app defined in the object
                 for (let [key, value] of Object.entries(apps))
                 {
                     //console.log("Origin: ", value.origin, ";\tChannel: ", value.channel, ";\tUpdateAvailable: ", value.updateAvailable, ";\t", value.name);
-                    promises.push(this.compareCommunityStoreVersion(key, value, notify, update));
-                    //await this.compareCommunityStoreVersion(key, value, notify, update);
+                    await this.compareCommunityStoreVersion(key, value, notify, communityData, notifiedList, updateList);
                     if (value.origin == 'appstore')
                     {
-                        promises.push(this.compareAthomStoreVersion(key, value, notify, update));
-                        //await this.compareAthomStoreVersion(key, value, notify, update);
+                        await this.compareAthomStoreVersion(key, value, notify, notifiedList, updateList);
                     }
                 }
 
                 // Wait for all the checks to complete
-                await Promise.allSettled(promises);
+                //await Promise.allSettled(promises);
 
-                Homey.ManagerSettings.set('updateList', this.updateList);
-                this.updateList = [];
-                this.communityData = [];
+                Homey.ManagerSettings.set('updateList', updateList);
             }
             catch (err)
             {
-                console.log(err);
+                //console.log(err);
                 status = err.message;
             }
 
-            Homey.ManagerSettings.set('notifiedList', this.notifiedList);
+            Homey.ManagerSettings.set('notifiedList', notifiedList);
 
             this.log("***** Check Complete *****");
             this.checking = false;
@@ -213,8 +191,8 @@ class MyApp extends Homey.App
     // returns -1 if v1 < v2, 0 if v1 == v2 and 1 if v1 > v2
     compareVersions(v1, v2)
     {
-        let vc1 = v1.split('.');
-        let vc2 = v2.split('.');
+        const vc1 = v1.split('.');
+        const vc2 = v2.split('.');
 
         if (parseInt(vc1[0]) < parseInt(vc2[0])) return -1;
         if (parseInt(vc1[0]) > parseInt(vc2[0])) return 1;
@@ -226,12 +204,11 @@ class MyApp extends Homey.App
         return 0;
     }
 
-    // Fetches an array of appId, version from the Community store and put it in this.communityData
+    // Returns an array of appId, version from the Community store
     async fetchCommunityVersions()
     {
         try
         {
-            this.communityData = [];
             let appURL = "https://4c23v5xwtc.execute-api.eu-central-1.amazonaws.com/production/apps/latest";
             const options = {
                 headers:
@@ -239,9 +216,8 @@ class MyApp extends Homey.App
                     'x-api-key': Homey.env.API_KEY
                 }
             };
-            let res = await this.GetURL(appURL, options);
-            this.communityData = JSON.parse(res).body;
-            console.log("Community Data: ", this.communityData);
+            const res = await this.GetURL(appURL, options);
+            return JSON.parse(res).body;
         }
         catch (err)
         {
@@ -250,27 +226,22 @@ class MyApp extends Homey.App
     }
 
     // Compare the app installed version to the Community store version
-    async compareCommunityStoreVersion(AppId, AppData, Notify, Update)
+    async compareCommunityStoreVersion(AppId, AppData, Notify, communityData, notifiedList, updateList)
     {
-
-        await this.communityPromise;
-
-        //console.log("Checking Community store for: ", AppId);
-
         // get the Community store version information of the app
-        let storeAppInfo = await this.getCommunityStoreAppInfo(AppId, AppData.name);
+        let storeAppInfo = await this.getCommunityStoreAppInfo(AppId, communityData);
 
         // If the app was found in the store and is a different version, then process it
         if (storeAppInfo && (this.compareVersions(AppData.version, storeAppInfo.releaseVersion) == -1))
         {
             // The installed version is lower than the current version
-            this.updateList.push(
+            updateList.push(
             {
                 url: "https://store.homey.community/app/" + AppId,
                 name: AppData.name + " (" + storeAppInfo.releaseVersion + ")"
             });
 
-            if (!this.checkNotifiedList(AppId, "Community", storeAppInfo.releaseVersion))
+            if (!this.checkNotifiedList(AppId, "Community", storeAppInfo.releaseVersion, notifiedList))
             {
                 let data = "";
                 if (Notify)
@@ -287,32 +258,15 @@ class MyApp extends Homey.App
                     }, (e, n) => {});
                 }
             }
-
-            // if (Update && (this.compareVersions(AppData.version, storeAppInfo.releaseVersion) == -1)) {
-            // 	// The installed version is lower than the current version
-            // 	// Ask the community store to update the app
-            // 	const err = await this.updateCommunityStoreApp(AppId);
-            // 	if (err) {
-            // 		const data = Homey.__("Failed_to_update") + AppData.name + " (" + err + ")";
-            // 		Homey.ManagerNotifications.registerNotification({
-            // 			excerpt: data
-            // 		}, (e, n) => {});
-            // 	} else {
-            // 		const data = AppData.name + Homey.__("updated_from") + AppData.version + Homey.__("to") + storeAppInfo.version;
-            // 		Homey.ManagerNotifications.registerNotification({
-            // 			excerpt: data
-            // 		}, (e, n) => {});
-            // 	}
-            // }
         }
     }
 
     // Get the version number for the specified app from the previously retrieved array
-    async getCommunityStoreAppInfo(AppId)
+    async getCommunityStoreAppInfo(AppId, communityData)
     {
-        if (this.communityData)
+        if (communityData)
         {
-            const appInfo = this.communityData.find(element => element.id == AppId);
+            const appInfo = communityData.find(element => element.id == AppId);
             if (appInfo)
             {
                 //console.log("App in Community store: ", appInfo.id, " - Version: ", appInfo.version);
@@ -321,19 +275,17 @@ class MyApp extends Homey.App
                     testVersion: appInfo.version
                 };
             }
-            // else{
-            // 	console.log("App not in Community store");
-            // }
         }
-        // else{
-        // 	console.log("No Community store data");
-        // }
+        else
+        {
+         	console.log("No Community store data");
+        }
 
         return null;
     }
 
     // Compare the app installed version to the Athom store version
-    async compareAthomStoreVersion(AppId, AppData, Notify, Update)
+    async compareAthomStoreVersion(AppId, AppData, Notify, notifiedList, updateList)
     {
         // get the Athom store version information of the app
         let storeAppInfo = await this.getAthomStoreAppInfo(AppId, AppData.name);
@@ -341,7 +293,7 @@ class MyApp extends Homey.App
         // If the app was found in the store and is a different version, then process it
         if (storeAppInfo)
         {
-            console.log("Athom store versions (", AppData.name, "), Test: ", storeAppInfo.testVersion, " - Release: ", storeAppInfo.releaseVersion);
+            //console.log("Athom store versions (", AppData.name, "), Test: ", storeAppInfo.testVersion, " - Release: ", storeAppInfo.releaseVersion);
             if (this.compareVersions(AppData.version, storeAppInfo.testVersion) == -1)
             {
                 // The installed version is lower than the test version
@@ -349,7 +301,7 @@ class MyApp extends Homey.App
                 if (this.compareVersions(AppData.version, storeAppInfo.releaseVersion) == -1)
                 {
                     // The installed version is lower than the release version
-                    if (!this.checkNotifiedList(AppId, "Athom-Production", storeAppInfo.releaseVersion))
+                    if (!this.checkNotifiedList(AppId, "Athom-Production", storeAppInfo.releaseVersion, notifiedList))
                     {
                         if (Notify)
                         {
@@ -359,10 +311,10 @@ class MyApp extends Homey.App
                         this.fireUpdateTrigger(AppData.name, Homey.__("athom_store"), AppData.version, storeAppInfo.releaseVersion);
                     }
 
-                    let AppName = AppData.name.replace(/ /g, "-");
-                    let url = encodeURI("https://homey.app/en-gb/app/" + AppId + "/" + AppName + "/");
+                    const AppName = AppData.name.replace(/ /g, "-");
+                    const url = encodeURI("https://homey.app/en-gb/app/" + AppId + "/" + AppName + "/");
 
-                    this.updateList.push(
+                    updateList.push(
                     {
                         url: url,
                         name: AppData.name + " (" + storeAppInfo.releaseVersion + ")"
@@ -371,7 +323,7 @@ class MyApp extends Homey.App
                 }
                 else
                 {
-                    if (!this.checkNotifiedList(AppId, "Athom-Test", storeAppInfo.testVersion))
+                    if (!this.checkNotifiedList(AppId, "Athom-Test", storeAppInfo.testVersion, notifiedList))
                     {
                         if (Notify)
                         {
@@ -383,7 +335,7 @@ class MyApp extends Homey.App
 
                     let AppName = AppData.name.replace(/ /g, "-");
                     let url = encodeURI("https://homey.app/en-gb/app/" + AppId + "/" + AppName + "/test/");
-                    this.updateList.push(
+                    updateList.push(
                     {
                         url: url,
                         name: AppData.name + " (test " + storeAppInfo.testVersion + ")"
@@ -398,6 +350,8 @@ class MyApp extends Homey.App
                     }, (e, n) => {});
                 }
             }
+
+            storeAppInfo = null;
         }
     }
 
@@ -418,13 +372,15 @@ class MyApp extends Homey.App
 
         if (res)
         {
-            rv = regex.exec(res.res)[0];
+            const v = regex.exec(res.res)[0];
+            const url = res.url;
+            rv = `${v}`;
             tv = rv;
-            appURL = res.url;
+            appURL =  `${url}`;
         }
         else
         {
-            console.log("Failed to get ", AppName, " -> ", appURL);
+            //("Failed to get ", AppName, " -> ", appURL);
         }
 
         try
@@ -433,8 +389,9 @@ class MyApp extends Homey.App
             res = await this.GetURLorRedirect(appURL + "test/", {});
             if (res)
             {
-                tv = regexTest.exec(res.res)[0];
-                console.log( "App test version = ", AppName, " tv = ", tv);
+                const v = regexTest.exec(res.res)[0];
+                tv = `${v}`;
+                //console.log( "App test version = ", AppName, " tv = ", tv);
             }
         }
         catch (err)
@@ -442,7 +399,7 @@ class MyApp extends Homey.App
             // Don't worry if this fails as it is expected when there is no test version
             if (err.source === "HTTPS Error" && err.code !== 302)
             {
-                console.log(err);
+                //console.log(err);
             }
         }
 
@@ -500,61 +457,65 @@ class MyApp extends Homey.App
         {
             try
             {
-                console.log("Checking: ", url);
+                //console.log("Checking: ", url);
                 https.get(url, Options, (res) =>
                 {
-                    if (res.statusCode === 200)
+                    let body = [];
+                    res.on('data', (chunk) =>
                     {
-                        let body = [];
-                        res.on('data', (chunk) =>
-                        {
-                            body.push(chunk);
-                        });
-                        res.on('end', () =>
+                        body.push(chunk);
+                    });
+                    res.on('end', () =>
+                    {
+                        if (res.statusCode === 200)
                         {
                             resolve(
                                 Buffer.concat(body).toString()
                             );
-                        });
-                    }
-                    else
-                    {
-                        let message = "";
-                        if (res.statusCode === 204)
-                        {
-                            message = "No Data Found";
                         }
-                        else if (res.statusCode === 302)
+                        else
                         {
-                            message = res.headers.location;
+                            let message = "";
+                            if (res.statusCode === 204)
+                            {
+                                message = "No Data Found";
+                            }
+                            else if (res.statusCode === 302)
+                            {
+                                message = res.headers.location;
+                            }
+                            else if (res.statusCode === 400)
+                            {
+                                message = "Bad request";
+                            }
+                            else if (res.statusCode === 401)
+                            {
+                                message = "Unauthorized";
+                            }
+                            else if (res.statusCode === 403)
+                            {
+                                message = "Forbidden";
+                            }
+                            else if (res.statusCode === 404)
+                            {
+                                message = "Not Found";
+                            }
+                            reject({ source: "HTTPS Error", code: res.statusCode, message: message });
                         }
-                        else if (res.statusCode === 400)
-                        {
-                            message = "Bad request";
-                        }
-                        else if (res.statusCode === 401)
-                        {
-                            message = "Unauthorized";
-                        }
-                        else if (res.statusCode === 403)
-                        {
-                            message = "Forbidden";
-                        }
-                        else if (res.statusCode === 404)
-                        {
-                            message = "Not Found";
-                        }
-                        reject({ source: "HTTPS Error", code: res.statusCode, message: message });
-                    }
+                    });
                 }).on('error', (err) =>
                 {
-                    console.log("HTTPS Catch: ", err);
+                    //console.log("HTTPS Catch: ", err);
+                    reject({ source: "HTTPS Catch", err: err });
+                }).on('timeout', (err) =>
+                {
+                    //console.log("HTTPS Catch: ", err);
                     reject({ source: "HTTPS Catch", err: err });
                 });
             }
             catch (e)
             {
-                console.log(e);
+                //console.log(e);
                 reject({ source: "HTTPS Try Catch", err: e });
             }
         });
