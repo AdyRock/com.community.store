@@ -40,6 +40,9 @@
   },
   "1.0.4": {
     "en": "Removed all cached data from app to reduce memory usage"
+  },
+  "3.0.0": {
+    "en": "Updated to SDK3"
   }
 }
   

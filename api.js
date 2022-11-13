@@ -1,56 +1,17 @@
-const Homey = require( 'homey' );
+/* jslint node: true */
 
-module.exports = [
+'use strict';
 
-    //  {
-    //     method: 'GET',
-    //     path: '/',
-    //     public: true,
-    //     fn: function( args, callback ){
-    //       const result = Homey.app.getSomething();
+module.exports = {
 
-    //       // callback follows ( err, result )
-    //       callback( null, result );
-
-    //       // access /?foo=bar as args.query.foo
-    //     }
-    //   },
-
+    async CheckNow({ homey })
     {
-        method: 'POST',
-        path: '/CheckNow/',
-        fn: function (args, callback) {
-            Homey.app.checkNow(false, false);
-            return callback(null, "ok");
-        }
+        //method: 'POST',
+        return homey.app.checkNow(false, false);
     },
+    async SetTime({ homey })
     {
-        method: 'POST',
-        path: '/SetTime/',
-        fn: function (args, callback) {
-            Homey.app.updateTimeout();
-            return callback(null, "ok");
-        }
+        //method: 'POST',
+        return homey.app.updateTimeout();
     }
-
-    //   {
-    //     method: 'PUT',
-    //     path: '/:id',
-    //     fn: function( args, callback ){
-    //       const result = Homey.app.updateSomething( args.params.id, args.body );
-    //       if( result instanceof Error ) return callback( result );
-    //       return callback( null, result );
-    //     }
-    //   },
-
-    //   {
-    //     method: 'DELETE',
-    //     path: '/:id',
-    //     fn: function( args, callback ){
-    //       const result = Homey.app.deleteSomething( args.params.id );
-    //       if( result instanceof Error ) return callback( result );
-    //       return callback( null, result );
-    //     }
-    //   }
-
-];
+};

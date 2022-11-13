@@ -1,11 +1,11 @@
 {
   "name": "com.community.store",
-  "version": "1.0.4",
+  "version": "3.0.0",
   "main": "app.js",
   "devDependencies": {
-    "homey": "^2.3.5"
+    "homey": "^2.0.6"
   },
   "dependencies": {
-    "athom-api": "^2.1.186"
+    "homey-api": "^1.0.1"
   }
 }
