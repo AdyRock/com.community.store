@@ -43,6 +43,9 @@
   },
   "3.0.0": {
     "en": "Updated to SDK3"
+  },
+  "3.0.1": {
+    "en": "Display HCS error messages when manually checking for updates\nDisplay progress when manually checking for updates"
   }
 }
   

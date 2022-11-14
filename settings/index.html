@@ -129,6 +129,15 @@
             Homey.on('com.community.store.showUpdates', function (data) {
                 if (data.status){
                     Homey.alert(data.status);
+                    return;
+                }
+                if (data.checking){
+                    document.getElementById('appSection').innerHTML = `Checking: ${data.checking}`;
+                    return;
+                }
+                if (data.fetching){
+                    document.getElementById('appSection').innerHTML = `Fetching: ${data.fetching}`;
+                    return;
                 }
                 getUpdates();
             });

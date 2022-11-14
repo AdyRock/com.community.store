@@ -147,10 +147,12 @@ class MyApp extends Homey.App
             {
                 this.log("Check for updates");
 
+                this.homey.api.realtime('com.community.store.showUpdates', { 'fetching': 'HCS app list' });
                 // Get the array of apps and version numbers from the Community store
                 const communityData = await this.fetchCommunityVersions();
                 const updateList = [];
 
+                this.homey.api.realtime('com.community.store.showUpdates', { 'fetching': 'Homey app list' });
                 // Get the list of installed apps
                 const api = new HomeyAPIApp(
                 {
@@ -163,7 +165,11 @@ class MyApp extends Homey.App
                 for (let [key, value] of Object.entries(apps))
                 {
                     //console.log("Origin: ", value.origin, ";\tChannel: ", value.channel, ";\tUpdateAvailable: ", value.updateAvailable, ";\t", value.name);
-                    await this.compareCommunityStoreVersion(key, value, notify, communityData, notifiedList, updateList);
+                    this.homey.api.realtime('com.community.store.showUpdates', { 'checking': value.name });
+                    if (communityData)
+                    {
+                        await this.compareCommunityStoreVersion(key, value, notify, communityData, notifiedList, updateList);
+                    }
                     if (value.origin == 'appstore')
                     {
                         await this.compareAthomStoreVersion(key, value, notify, notifiedList, updateList);
