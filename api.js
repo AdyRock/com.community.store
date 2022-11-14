@@ -7,7 +7,8 @@ module.exports = {
     async CheckNow({ homey })
     {
         //method: 'POST',
-        return homey.app.checkNow(false, false);
+        homey.app.checkNow(false, false);
+        return;
     },
     async SetTime({ homey })
     {
