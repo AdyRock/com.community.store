@@ -6,6 +6,6 @@
     "homey": "^2.0.6"
   },
   "dependencies": {
-    "homey-api": "^1.0.1"
+    "homey-api": "^1.9.1"
   }
 }
