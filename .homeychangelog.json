@@ -46,6 +46,9 @@
   },
   "3.0.1": {
     "en": "Display HCS error messages when manually checking for updates\nDisplay progress when manually checking for updates"
+  },
+  "3.0.2": {
+    "en": "Show how long to the next automatic check when the check time is set. Fixed update available trigger."
   }
 }
   

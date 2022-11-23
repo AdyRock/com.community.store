@@ -7,7 +7,7 @@ if (process.env.DEBUG === '1')
 }
 
 const Homey = require('homey');
-const { HomeyAPIApp } = require('homey-api');
+const { HomeyAPIApp } = require('./homey-api');
 const https = require("https");
 
 const UPDATE_INTERVAL = (1000 * 60 * 60 * 23);
@@ -34,11 +34,6 @@ class MyApp extends Homey.App
         }
 
         this.appUpdateTrigger = this.homey.flow.getTriggerCard('update_available');
-        this.appUpdateTrigger
-            .registerRunListener(async (args, state) =>
-            {
-                return (args.device.getAppId() === state.device.appId);
-            });
     }
 
     async fireUpdateTrigger(Name, Store, OldVersion, NewVersion)
@@ -129,6 +124,13 @@ class MyApp extends Homey.App
 
         // Setup timer for next check
         this.timeoutID = this.homey.setTimeout(this.checkForUpdates.bind(this), newTime.valueOf());
+
+        // convert to minutes
+        newTime /= (1000 * 60);
+        let hours = parseInt(newTime / 60);
+        let mins = newTime - (hours * 60);
+
+        return `Next update in ${hours}:${mins} hrs:mins`;
     }
 
     async checkNow(notify, update)
