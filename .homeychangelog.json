@@ -51,7 +51,7 @@
     "en": "Show how long to the next automatic check when the check time is set. Fixed update available trigger."
   },
   "3.0.3": {
-    "en": "Fix missing leading zero from minutes until check report. Incorporate new Homey css styles on settings page."
+    "en": "Fix missing leading zero from minutes until check report. Incorporate new Homey css styles on settings page. Restart update timer when app restarts."
   }
 }
   

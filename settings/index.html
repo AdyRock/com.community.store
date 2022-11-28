@@ -185,7 +185,6 @@
             checkButton.addEventListener('click', function(e)
             {
                 checkButton.classList.add('is-loading');
-                Homey.unset('autoUpdate');
                 document.getElementById('appSection').innerHTML = "Checking, please wait...";
                 Homey.api('POST', '/CheckNow/',
                 {

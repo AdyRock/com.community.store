@@ -2,7 +2,6 @@
     "settings": {
         "Settings": "Settings",
         "autoNotify": "Notify when update available",
-        "autoUpdate": "Update apps automatically",
         "Store": "Store",
         "actions": "Actions",
         "ViewAthom": "View Athom Store",

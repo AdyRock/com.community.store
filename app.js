@@ -34,6 +34,8 @@ class MyApp extends Homey.App
         }
 
         this.appUpdateTrigger = this.homey.flow.getTriggerCard('update_available');
+
+        this.updateTimeout();
     }
 
     async fireUpdateTrigger(Name, Store, OldVersion, NewVersion)
@@ -85,9 +87,8 @@ class MyApp extends Homey.App
     {
         // Get the app settings
         const notify = this.homey.settings.get('autoNotify');
-        const update = this.homey.settings.get('autoUpdate');
 
-        if (await this.checkNow(notify, update))
+        if (await this.checkNow(notify))
         {
             this.updateTimeout();
         }
@@ -134,7 +135,7 @@ class MyApp extends Homey.App
         return `Next update in ${hours}:${formattedMins} hrs:mins`;
     }
 
-    async checkNow(notify, update)
+    async checkNow(notify)
     {
         if (!this.checking)
         {
