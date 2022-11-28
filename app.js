@@ -129,8 +129,9 @@ class MyApp extends Homey.App
         newTime /= (1000 * 60);
         let hours = parseInt(newTime / 60);
         let mins = newTime - (hours * 60);
+        var formattedMins = ("0" + mins).slice(-2);
 
-        return `Next update in ${hours}:${mins} hrs:mins`;
+        return `Next update in ${hours}:${formattedMins} hrs:mins`;
     }
 
     async checkNow(notify, update)

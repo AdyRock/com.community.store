@@ -15,79 +15,82 @@
 </head>
 
 <body>
-    <fieldset>
-        <legend><span data-i18n="settings.Settings"></span></legend>
-        <div class="field row">
-            <label for="autoNotify"><span data-i18n="settings.autoNotify"></span></label>
-            <input id="autoNotify" type="checkbox" value="notify" />
+    <fieldset class="homey-form-fieldset">
+        <legend class="homey-form-legend"><span data-i18n="settings.Settings"></span></legend>
+
+        <label class="homey-form-checkbox">
+            <input class="homey-form-checkbox-input" id="autoNotify" type="checkbox" value="notify" />
+            <span class="homey-form-checkbox-checkmark"></span>
+            <span class="homey-form-checkbox-text"><span data-i18n="settings.autoNotify"></span></span>
+        </label>
+
+        <div class="homey-form-group">
+            <div style="padding: 0px 15px 15px 15px; border: 1px solid lightblue; border-radius: 10px">
+                <fieldset class="homey-form-radio-set">
+                    <legend class="homey-form-radio-set-title"><span data-i18n="settings.updateTime"></span></legend>
+                    <div style="display: inline-block">
+                        <label class="homey-form-label" for="UpdateHr"><span data-i18n="settings.updateTimeHr"></span></label>
+                        <select class="homey-form-select" id="UpdateHr">
+                            <option value=0>00</option>
+                            <option value=1>01</option>
+                            <option value=2>02</option>
+                            <option value=3>03</option>
+                            <option value=4>04</option>
+                            <option value=5>05</option>
+                            <option value=6>06</option>
+                            <option value=7>07</option>
+                            <option value=8>08</option>
+                            <option value=9>09</option>
+                            <option value=10>10</option>
+                            <option value=11>11</option>
+                            <option value=12>12</option>
+                            <option value=13>13</option>
+                            <option value=14>14</option>
+                            <option value=15>15</option>
+                            <option value=16>16</option>
+                            <option value=17>17</option>
+                            <option value=18>18</option>
+                            <option value=19>19</option>
+                            <option value=20>20</option>
+                            <option value=21>21</option>
+                            <option value=22>22</option>
+                            <option value=23>23</option>
+                        </select>
+                    </div>
+                    <div style="display: inline-block; margin-left: 10px;">
+                        <label class="homey-form-label" for="UpdateMin"><span data-i18n="settings.updateTimeMin"></span></label>
+                        <select class="homey-form-select" id="UpdateMin">
+                            <option value=0>00</option>
+                            <option value=5>05</option>
+                            <option value=10>10</option>
+                            <option value=15>15</option>
+                            <option value=20>20</option>
+                            <option value=25>25</option>
+                            <option value=30>30</option>
+                            <option value=35>35</option>
+                            <option value=40>40</option>
+                            <option value=45>45</option>
+                            <option value=50>50</option>
+                            <option value=55>55</option>
+                        </select>
+                    </div>
+                </fieldset>
+            </div>
         </div>
-        <div class="field row" hidden>
-            <label for="autoUpdate"><span data-i18n="settings.autoUpdate"></span></label>
-            <input id="autoUpdate" type="checkbox" value="update" />
-        </div>
-        <div class="field row">
-            <label for="UpdateHr"><span data-i18n="settings.updateTimeHr"></span></label>
-            <select id="UpdateHr">
-                <option value=0>00</option>
-                <option value=1>01</option>
-                <option value=2>02</option>
-                <option value=3>03</option>
-                <option value=4>04</option>
-                <option value=5>05</option>
-                <option value=6>06</option>
-                <option value=7>07</option>
-                <option value=8>08</option>
-                <option value=9>09</option>
-                <option value=10>10</option>
-                <option value=11>11</option>
-                <option value=12>12</option>
-                <option value=13>13</option>
-                <option value=14>14</option>
-                <option value=15>15</option>
-                <option value=16>16</option>
-                <option value=17>17</option>
-                <option value=18>18</option>
-                <option value=19>19</option>
-                <option value=20>20</option>
-                <option value=21>21</option>
-                <option value=22>22</option>
-                <option value=23>23</option>
-            </select>
-            <label for="UpdateMin"><span data-i18n="settings.updateTimeMin"></span></label>
-            <select id="UpdateMin">
-                <option value=0>00</option>
-                <option value=5>05</option>
-                <option value=10>10</option>
-                <option value=15>15</option>
-                <option value=20>20</option>
-                <option value=25>25</option>
-                <option value=30>30</option>
-                <option value=35>35</option>
-                <option value=40>40</option>
-                <option value=45>45</option>
-                <option value=50>50</option>
-                <option value=55>55</option>
-            </select>            
-            <p><button id="saveTime"><span data-i18n="settings.SaveTime"></span></button></p>
+        <p><button class="homey-button-primary-full" id="saveTime"><span data-i18n="settings.SaveTime"></span></button></p>
+    </fieldset>
+
+    <fieldset class="homey-form-fieldset">
+        <legend class="homey-form-legend"><span data-i18n="settings.actions"></span></legend>
+        <div class="homey-form-group">
+            <p><button class="homey-button-primary-full" id="viewC"><span data-i18n="settings.ViewCommunity"></span></button></p>
+            <p><button class="homey-button-primary-full" id="viewA"><span data-i18n="settings.ViewAthom"></span></button></p>
+            <p><button class="homey-button-primary-full" id="check"><span data-i18n="settings.CheckForUpdates"></span></button></p>
         </div>
     </fieldset>
 
-    <fieldset>
-        <legend><span data-i18n="settings.Store"></span></legend>
-
-        <div class="field row">
-            <p><button id="viewC"><span data-i18n="settings.ViewCommunity"></span></button></p>
-        </div>
-        <div class="field row">
-            <p><button id="viewA"><span data-i18n="settings.ViewAthom"></span></button></p>
-        </div>
-        <div class="field row">
-            <p><button id="check"><span data-i18n="settings.CheckForUpdates"></span></button></p>
-        </div>
-    </fieldset>
-
-    <fieldset>
-        <legend>Available Updates</legend>
+    <fieldset class="homey-form-fieldset">
+        <legend class="homey-form-legend">Available Updates</legend>
         <div id="appSection"></div>
     </fieldset>
 
@@ -96,88 +99,101 @@
         var viewCButton = document.getElementById('viewC');
         var checkButton = document.getElementById('check');
         var autoNotifyElement = document.getElementById('autoNotify');
-        var autoUpdateElement = document.getElementById('autoUpdate');
         var updateHrElement = document.getElementById('UpdateHr');
         var updateMinElement = document.getElementById('UpdateMin');
         var saveTimeButton = document.getElementById('saveTime');
 
         // a method named 'onHomeyReady' must be present in your code
-        function onHomeyReady(Homey) {
+        function onHomeyReady(Homey)
+        {
 
-            Homey.get('autoNotify', function (err, autoNotify) {
+            Homey.get('autoNotify', function(err, autoNotify)
+            {
                 if (err) return Homey.alert(err);
                 autoNotifyElement.checked = autoNotify;
             });
 
-            Homey.get('autoUpdate', function (err, autoUpdate) {
-                if (err) return Homey.alert(err);
-                autoUpdateElement.checked = autoUpdate;
-            });
-
-            Homey.get('updateHr', function (err, updateHr) {
+            Homey.get('updateHr', function(err, updateHr)
+            {
                 if (err) return Homey.alert(err);
                 updateHrElement.value = updateHr;
             });
 
-            Homey.get('updateMin', function (err, updateMin) {
+            Homey.get('updateMin', function(err, updateMin)
+            {
                 if (err) return Homey.alert(err);
                 updateMinElement.value = updateMin;
             });
 
             getUpdates();
 
-            Homey.on('com.community.store.showUpdates', function (data) {
-                if (data.status){
+            Homey.on('com.community.store.showUpdates', function(data)
+            {
+                if (data.status)
+                {
+                    checkButton.classList.remove('is-loading');
                     Homey.alert(data.status);
                     return;
                 }
-                if (data.checking){
+                if (data.checking)
+                {
+                    checkButton.classList.add('is-loading');
                     document.getElementById('appSection').innerHTML = `Checking: ${data.checking}`;
                     return;
                 }
-                if (data.fetching){
+                if (data.fetching)
+                {
                     document.getElementById('appSection').innerHTML = `Fetching: ${data.fetching}`;
                     return;
                 }
+                checkButton.classList.remove('is-loading');
                 getUpdates();
             });
 
-            autoNotifyElement.addEventListener('click', function (e) {
+            autoNotifyElement.addEventListener('click', function(e)
+            {
                 Homey.set('autoNotify', autoNotifyElement.checked);
             });
 
-            autoUpdateElement.addEventListener('click', function (e) {
-                Homey.set('autoUpdate', autoUpdateElement.checked);
-            });
-
-            viewAButton.addEventListener('click', function (e) {
+            viewAButton.addEventListener('click', function(e)
+            {
                 Homey.openURL('https://homey.app/en-gb/apps/');
             });
 
-            viewCButton.addEventListener('click', function (e) {
+            viewCButton.addEventListener('click', function(e)
+            {
                 Homey.openURL('https://store.homey.community/');
             });
 
-            saveTimeButton.addEventListener('click', function (e) {
+            saveTimeButton.addEventListener('click', function(e)
+            {
                 Homey.set('updateHr', updateHrElement.value);
                 Homey.set('updateMin', updateMinElement.value);
-                Homey.api('POST', '/SetTime/', {}, function (err, result) {
-                    if (err) {
+                Homey.api('POST', '/SetTime/', {}, function(err, result)
+                {
+                    if (err)
+                    {
                         return Homey.alert(err);
                     }
-                    else{
+                    else
+                    {
                         return Homey.alert(result);
                     }
                 });
             });
 
-            checkButton.addEventListener('click', function (e) {
+            checkButton.addEventListener('click', function(e)
+            {
+                checkButton.classList.add('is-loading');
                 Homey.unset('autoUpdate');
                 document.getElementById('appSection').innerHTML = "Checking, please wait...";
-                Homey.api('POST', '/CheckNow/', {
+                Homey.api('POST', '/CheckNow/',
+                {
                     notify: true
-                }, function (err, result) {
-                    if (err) {
+                }, function(err, result)
+                {
+                    if (err)
+                    {
                         return Homey.alert(err);
                     }
                 });
@@ -187,7 +203,8 @@
             Homey.ready();
         }
 
-        function addApp(url, appName) {
+        function addApp(url, appName)
+        {
             //console.log("addApp");
             var section = document.getElementById('appSection').innerHTML;
 
@@ -197,15 +214,21 @@
 
         }
 
-        function getUpdates() {
+        function getUpdates()
+        {
             document.getElementById('appSection').innerHTML = "";
-            Homey.get('updateList', function (err, updateList) {
+            Homey.get('updateList', function(err, updateList)
+            {
                 if (err) return Homey.alert(err);
-                if (updateList.length == 0) {
+                if (updateList.length == 0)
+                {
                     document.getElementById('appSection').innerHTML = "No updates";
-                } else {
+                }
+                else
+                {
                     document.getElementById('appSection').innerHTML = "";
-                    updateList.forEach(element => {
+                    updateList.forEach(element =>
+                    {
                         addApp(element.url, element.name);
                     });
                 }
