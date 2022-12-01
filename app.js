@@ -268,7 +268,7 @@ class MyApp extends Homey.App
 
                 if (Notify)
                 {
-                    this.homey.ManagerNotifications.registerNotification(
+                    this.homey.notifications.createNotification(
                     {
                         excerpt: data
                     }, (e, n) => {});
@@ -360,7 +360,7 @@ class MyApp extends Homey.App
 
                 if (data)
                 {
-                    this.homey.ManagerNotifications.registerNotification(
+                    this.homey.notifications.createNotification(
                     {
                         excerpt: data
                     }, (e, n) => {});
