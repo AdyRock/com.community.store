@@ -55,6 +55,12 @@
   },
   "3.0.4": {
     "en": "Fixed a missed SDK3 update change for notifications."
+  },
+  "3.0.5": {
+    "en": "Fixed incorrect format for SDK3 update change for notifications."
+  },
+  "4.0.0": {
+    "en": "Removed old HCS as it has now closed."
   }
 }
   

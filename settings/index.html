@@ -83,7 +83,6 @@
     <fieldset class="homey-form-fieldset">
         <legend class="homey-form-legend"><span data-i18n="settings.actions"></span></legend>
         <div class="homey-form-group">
-            <p><button class="homey-button-primary-full" id="viewC"><span data-i18n="settings.ViewCommunity"></span></button></p>
             <p><button class="homey-button-primary-full" id="viewA"><span data-i18n="settings.ViewAthom"></span></button></p>
             <p><button class="homey-button-primary-full" id="check"><span data-i18n="settings.CheckForUpdates"></span></button></p>
         </div>
@@ -160,11 +159,6 @@
                 Homey.openURL('https://homey.app/en-gb/apps/');
             });
 
-            viewCButton.addEventListener('click', function(e)
-            {
-                Homey.openURL('https://store.homey.community/');
-            });
-
             saveTimeButton.addEventListener('click', function(e)
             {
                 Homey.set('updateHr', updateHrElement.value);
@@ -209,7 +203,7 @@
 
             document.getElementById('appSection').innerHTML = section +
                 '<div class="field row"><p><label class="a">' +
-                appName + '</label><button onClick="Homey.openURL(' + "'" + url + "'" + ')">View</button></p></div>';
+                appName + '</label><button class="homey-button-secondary-shadow" onClick="Homey.openURL(' + "'" + url + "'" + ')">View</button></p></div>';
 
         }
 

@@ -150,10 +150,6 @@ class MyApp extends Homey.App
             try
             {
                 this.log("Check for updates");
-
-                this.homey.api.realtime('com.community.store.showUpdates', { 'fetching': 'HCS app list' });
-                // Get the array of apps and version numbers from the Community store
-                const communityData = await this.fetchCommunityVersions();
                 const updateList = [];
 
                 this.homey.api.realtime('com.community.store.showUpdates', { 'fetching': 'Homey app list' });
@@ -168,20 +164,12 @@ class MyApp extends Homey.App
                 // Check each app defined in the object
                 for (let [key, value] of Object.entries(apps))
                 {
-                    //console.log("Origin: ", value.origin, ";\tChannel: ", value.channel, ";\tUpdateAvailable: ", value.updateAvailable, ";\t", value.name);
                     this.homey.api.realtime('com.community.store.showUpdates', { 'checking': value.name });
-                    if (communityData)
-                    {
-                        await this.compareCommunityStoreVersion(key, value, notify, communityData, notifiedList, updateList);
-                    }
                     if (value.origin == 'appstore')
                     {
                         await this.compareAthomStoreVersion(key, value, notify, notifiedList, updateList);
                     }
                 }
-
-                // Wait for all the checks to complete
-                //await Promise.allSettled(promises);
 
                 this.homey.settings.set('updateList', updateList);
             }
@@ -207,97 +195,24 @@ class MyApp extends Homey.App
     // returns -1 if v1 < v2, 0 if v1 == v2 and 1 if v1 > v2
     compareVersions(v1, v2)
     {
-        const vc1 = v1.split('.');
-        const vc2 = v2.split('.');
-
-        if (parseInt(vc1[0]) < parseInt(vc2[0])) return -1;
-        if (parseInt(vc1[0]) > parseInt(vc2[0])) return 1;
-        if (parseInt(vc1[1]) < parseInt(vc2[1])) return -1;
-        if (parseInt(vc1[1]) > parseInt(vc2[1])) return 1;
-        if (parseInt(vc1[2]) < parseInt(vc2[2])) return -1;
-        if (parseInt(vc1[2]) > parseInt(vc2[2])) return 1;
-
-        return 0;
-    }
-
-    // Returns an array of appId, version from the Community store
-    async fetchCommunityVersions()
-    {
         try
         {
-            let appURL = "https://4c23v5xwtc.execute-api.eu-central-1.amazonaws.com/production/apps/latest";
-            const options = {
-                headers:
-                {
-                    'x-api-key': Homey.env.API_KEY
-                }
-            };
-            const res = await this.GetURL(appURL, options);
-            return JSON.parse(res).body;
+            const vc1 = v1.split('.');
+            const vc2 = v2.split('.');
+
+            if (parseInt(vc1[0]) < parseInt(vc2[0])) return -1;
+            if (parseInt(vc1[0]) > parseInt(vc2[0])) return 1;
+            if (parseInt(vc1[1]) < parseInt(vc2[1])) return -1;
+            if (parseInt(vc1[1]) > parseInt(vc2[1])) return 1;
+            if (parseInt(vc1[2]) < parseInt(vc2[2])) return -1;
+            if (parseInt(vc1[2]) > parseInt(vc2[2])) return 1;
         }
         catch (err)
         {
-            console.log("Community store error: ", err);
-        }
-    }
-
-    // Compare the app installed version to the Community store version
-    async compareCommunityStoreVersion(AppId, AppData, Notify, communityData, notifiedList, updateList)
-    {
-        // get the Community store version information of the app
-        let storeAppInfo = await this.getCommunityStoreAppInfo(AppId, communityData);
-
-        // If the app was found in the store and is a different version, then process it
-        if (storeAppInfo && (this.compareVersions(AppData.version, storeAppInfo.releaseVersion) == -1))
-        {
-            // The installed version is lower than the current version
-            updateList.push(
-            {
-                url: "https://store.homey.community/app/" + AppId,
-                name: AppData.name + " (" + storeAppInfo.releaseVersion + ")"
-            });
-
-            if (!this.checkNotifiedList(AppId, "Community", storeAppInfo.releaseVersion, notifiedList))
-            {
-                let data = "";
-                if (Notify)
-                {
-                    data = "Community store: " + this.homey.__("Update_available_for") + AppData.name + this.homey.__("from") + AppData.version + this.homey.__("to") + storeAppInfo.releaseVersion;
-                }
-                this.fireUpdateTrigger(AppData.name, this.homey.__("community_store"), AppData.version, storeAppInfo.releaseVersion);
-
-                if (Notify)
-                {
-                    this.homey.notifications.createNotification(
-                    {
-                        excerpt: data
-                    }, (e, n) => {});
-                }
-            }
-        }
-    }
-
-    // Get the version number for the specified app from the previously retrieved array
-    async getCommunityStoreAppInfo(AppId, communityData)
-    {
-        if (communityData)
-        {
-            const appInfo = communityData.find(element => element.id == AppId);
-            if (appInfo)
-            {
-                //console.log("App in Community store: ", appInfo.id, " - Version: ", appInfo.version);
-                return {
-                    releaseVersion: appInfo.version,
-                    testVersion: appInfo.version
-                };
-            }
-        }
-        else
-        {
-            console.log("No Community store data");
+            this.log(err);
         }
 
-        return null;
+        return 0;
     }
 
     // Compare the app installed version to the Athom store version
@@ -333,7 +248,7 @@ class MyApp extends Homey.App
                     updateList.push(
                     {
                         url: url,
-                        name: AppData.name + " (" + storeAppInfo.releaseVersion + ")"
+                        name: `${AppData.name} (Installed ${AppData.version}, available ${storeAppInfo.releaseVersion})`
                     });
 
                 }
@@ -354,16 +269,13 @@ class MyApp extends Homey.App
                     updateList.push(
                     {
                         url: url,
-                        name: AppData.name + " (test " + storeAppInfo.testVersion + ")"
+                        name: `${AppData.name} (Installed ${AppData.version}, available test ${storeAppInfo.testVersion})`
                     });
                 }
 
                 if (data)
                 {
-                    this.homey.notifications.createNotification(
-                    {
-                        excerpt: data
-                    }, (e, n) => {});
+                    this.homey.notifications.createNotification({excerpt: data});
                 }
             }
 
@@ -425,14 +337,6 @@ class MyApp extends Homey.App
             releaseVersion: rv,
             testVersion: tv
         };
-    }
-
-    // Send request to the community store to updated the app
-    async updateCommunityStoreApp(AppId)
-    {
-        // TODO Send request to community store to update an app
-
-        return this.homey.__("Store_not_available"); // Update failed
     }
 
     async GetURLorRedirect(url, Options)

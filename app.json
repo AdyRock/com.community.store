@@ -1,6 +1,6 @@
 {
-    "id": "com.community.store",
-    "version": "3.0.4",
+    "id": "com.versionchecker",
+    "version": "4.0.0",
     "compatibility": ">=5.0.0",
     "sdk": 3,
     "brandColor": "#FF7D4B",
@@ -8,7 +8,7 @@
         "en": "App Version Checker"
     },
     "description": {
-        "en": "Check for app updates in the community store and Athom store"
+        "en": "Check for app updates in the Athom store"
     },
     "category": [
         "internet"
@@ -53,15 +53,7 @@
                         "title": {
                             "en": "App Name"
                         },
-                        "example": "Community Store Checker"
-                    },
-                    {
-                        "name": "update_app_store",
-                        "type": "string",
-                        "title": {
-                            "en": "Store"
-                        },
-                        "example": "Community Store"
+                        "example": "Name of the app that has an update"
                     },
                     {
                         "name": "update_app_old_ver",
