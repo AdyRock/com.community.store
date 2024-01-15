@@ -300,10 +300,18 @@ class MyApp extends Homey.App
 
         if (res)
         {
-            const v = regex.exec(res.res)[0];
-            const url = res.url;
-            rv = `${v}`;
+            try
+            {
+                const v = regex.exec(res.res)[0];
+                rv = `${v}`;
+            }
+            catch (err)
+            {
+                rc = -1;
+            }
+            
             tv = rv;
+            const url = res.url;
             appURL = `${url}`;
         }
         else

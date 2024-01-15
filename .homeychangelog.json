@@ -61,6 +61,9 @@
   },
   "4.0.0": {
     "en": "Removed old HCS as it has now closed."
+  },
+  "4.0.1": {
+    "en": "Fix error when there is only a test version of an app in the store."
   }
 }
   
