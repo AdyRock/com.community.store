@@ -64,6 +64,9 @@
   },
   "4.0.1": {
     "en": "Fix error when there is only a test version of an app in the store."
+  },
+  "4.0.2": {
+    "en": "Fix error when there is only a test version of an app in the store."
   }
 }
   

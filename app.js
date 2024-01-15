@@ -307,7 +307,7 @@ class MyApp extends Homey.App
             }
             catch (err)
             {
-                rc = -1;
+                rv = -1;
             }
             
             tv = rv;
