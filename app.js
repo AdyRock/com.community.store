@@ -158,7 +158,7 @@ class MyApp extends Homey.App
                 {
                     homey: this.homey,
                 });
-                
+
                 const apps = await api.apps.getApps();
 
                 // Check each app defined in the object
@@ -295,7 +295,7 @@ class MyApp extends Homey.App
         let tv = "";
 
         AppName = AppName.replace(/ /g, "-");
-        let appURL = encodeURI("https://homey.app/en-gb/app/" + AppId + "/" + AppName + "/");
+        let appURL = encodeURI("https://homey.app/en-gb/app/" + AppId + "/");
         res = await this.GetURLorRedirect(appURL, {});
 
         if (res)
@@ -309,7 +309,7 @@ class MyApp extends Homey.App
             {
                 rv = -1;
             }
-            
+
             tv = rv;
             const url = res.url;
             appURL = `${url}`;

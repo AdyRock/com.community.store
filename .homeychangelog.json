@@ -67,6 +67,9 @@
   },
   "4.0.2": {
     "en": "Fix error when there is only a test version of an app in the store."
+  },
+  "4.0.3": {
+    "en": "Fix for new URL format of apps."
   }
 }
-  
+
