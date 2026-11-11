@@ -11,6 +11,7 @@ const { HomeyAPIApp } = require('./homey-api');
 const https = require("https");
 
 const UPDATE_INTERVAL = (1000 * 60 * 60 * 23);
+const REQUEST_TIMEOUT = 30 * 1000;
 
 class MyApp extends Homey.App
 {
@@ -46,9 +47,15 @@ class MyApp extends Homey.App
             'update_app_old_ver': OldVersion,
             'update_app_new_ver': NewVersion
         };
-        this.appUpdateTrigger.trigger(tokens)
-            .then(this.log("update_available Trigger Complete"))
-            .catch(this.error);
+        try
+        {
+            await this.appUpdateTrigger.trigger(tokens);
+            this.log("update_available Trigger Complete");
+        }
+        catch (err)
+        {
+            this.error("Failed to fire update trigger", err);
+        }
     }
 
     // Returns true if this app version has already been checked
@@ -85,12 +92,26 @@ class MyApp extends Homey.App
     // Check each installed app against the community store to determine if any updates are available
     async checkForUpdates()
     {
-        // Get the app settings
-        const notify = this.homey.settings.get('autoNotify');
-
-        if (await this.checkNow(notify))
+        try
         {
-            this.updateTimeout();
+            // Get the app settings
+            const notify = this.homey.settings.get('autoNotify');
+            await this.checkNow(notify);
+        }
+        catch (err)
+        {
+            this.error("Scheduled update check failed", err);
+        }
+        finally
+        {
+            try
+            {
+                this.updateTimeout();
+            }
+            catch (err)
+            {
+                this.error("Failed to schedule update check", err);
+            }
         }
     }
 
@@ -140,19 +161,20 @@ class MyApp extends Homey.App
         if (!this.checking)
         {
             this.checking = true;
-            let notifiedList = await this.homey.settings.get('notifiedList');
-            if (!notifiedList)
-            {
-                notifiedList = [];
-            }
-
+            let notifiedList;
             let status = "";
             try
             {
+                notifiedList = await this.homey.settings.get('notifiedList');
+                if (!notifiedList)
+                {
+                    notifiedList = [];
+                }
+
                 this.log("Check for updates");
                 const updateList = [];
 
-                this.homey.api.realtime('com.community.store.showUpdates', { 'fetching': 'Homey app list' });
+                await this.homey.api.realtime('com.community.store.showUpdates', { 'fetching': 'Homey app list' });
                 // Get the list of installed apps
                 const api = new HomeyAPIApp(
                 {
@@ -164,27 +186,50 @@ class MyApp extends Homey.App
                 // Check each app defined in the object
                 for (let [key, value] of Object.entries(apps))
                 {
-                    this.homey.api.realtime('com.community.store.showUpdates', { 'checking': value.name });
+                    await this.homey.api.realtime('com.community.store.showUpdates', { 'checking': value.name });
                     if (value.origin == 'appstore')
                     {
                         await this.compareAthomStoreVersion(key, value, notify, notifiedList, updateList);
                     }
                 }
 
-                this.homey.settings.set('updateList', updateList);
+                await this.homey.settings.set('updateList', updateList);
             }
             catch (err)
             {
-                //console.log(err);
-                status = err.message;
+                this.error("Update check failed", err);
+                status = (err && err.message) || String(err);
             }
-
-            this.homey.settings.set('notifiedList', notifiedList);
+            finally
+            {
+                try
+                {
+                    if (notifiedList)
+                    {
+                        await this.homey.settings.set('notifiedList', notifiedList);
+                    }
+                }
+                catch (err)
+                {
+                    this.error("Failed to save notification list", err);
+                    status = (err && err.message) || String(err);
+                }
+                finally
+                {
+                    this.checking = false;
+                }
+            }
 
             this.log("***** Check Complete *****");
             this.log(`Status: ${status}`);
-            this.checking = false;
-            this.homey.api.realtime('com.community.store.showUpdates', { 'status': status });
+            try
+            {
+                await this.homey.api.realtime('com.community.store.showUpdates', { 'status': status });
+            }
+            catch (err)
+            {
+                this.error("Failed to report update check status", err);
+            }
             return true;
         }
 
@@ -239,7 +284,7 @@ class MyApp extends Homey.App
                             data = this.homey.__("Update_available_for") + AppData.name + this.homey.__("from") + AppData.version + this.homey.__("to") + storeAppInfo.releaseVersion;
                         }
 
-                        this.fireUpdateTrigger(AppData.name, this.homey.__("athom_store"), AppData.version, storeAppInfo.releaseVersion);
+                        await this.fireUpdateTrigger(AppData.name, this.homey.__("athom_store"), AppData.version, storeAppInfo.releaseVersion);
                     }
 
                     const AppName = AppData.name.replace(/ /g, "-");
@@ -261,7 +306,7 @@ class MyApp extends Homey.App
                             data = this.homey.__("Update_available_for") + AppData.name + this.homey.__("from") + AppData.version + this.homey.__("to") + " Test: " + storeAppInfo.testVersion;
                         }
 
-                        this.fireUpdateTrigger(AppData.name, this.homey.__("athom_store"), AppData.version, "test " + storeAppInfo.testVersion);
+                        await this.fireUpdateTrigger(AppData.name, this.homey.__("athom_store"), AppData.version, "test " + storeAppInfo.testVersion);
                     }
 
                     let AppName = AppData.name.replace(/ /g, "-");
@@ -275,7 +320,14 @@ class MyApp extends Homey.App
 
                 if (data)
                 {
-                    this.homey.notifications.createNotification({excerpt: data});
+                    try
+                    {
+                        await this.homey.notifications.createNotification({excerpt: data});
+                    }
+                    catch (err)
+                    {
+                        this.error("Failed to create update notification", err);
+                    }
                 }
             }
 
@@ -356,13 +408,17 @@ class MyApp extends Homey.App
         }
         catch (err)
         {
-            if (err.source === "HTTPS Error" && err.code === 302)
+            if (err && err.source === "HTTPS Error" && err.code === 302)
             {
                 // Try again with the redirect location
                 urlToUse = "https://homey.app" + err.message;
             }
             else
             {
+                if (!err || err.source !== "HTTPS Error" || err.code !== 404)
+                {
+                    this.error("Failed to fetch store URL", urlToUse, err);
+                }
                 return null;
             }
         }
@@ -373,7 +429,10 @@ class MyApp extends Homey.App
         }
         catch (err)
         {
-
+            if (!err || err.source !== "HTTPS Error" || err.code !== 404)
+            {
+                this.error("Failed to fetch redirected store URL", urlToUse, err);
+            }
         }
 
         return null;
@@ -383,23 +442,63 @@ class MyApp extends Homey.App
     {
         return new Promise((resolve, reject) =>
         {
+            let request;
+            const timeout = setTimeout(() =>
+            {
+                const err = new Error(`HTTPS request timed out after ${REQUEST_TIMEOUT} ms`);
+                rejectResponse({ source: "HTTPS Catch", err: err });
+                request.destroy(err);
+            }, REQUEST_TIMEOUT);
+            const resolveResponse = (value) =>
+            {
+                clearTimeout(timeout);
+                resolve(value);
+            };
+            const rejectResponse = (err) =>
+            {
+                clearTimeout(timeout);
+                reject(err);
+            };
+
             try
             {
                 //console.log("Checking: ", url);
-                https.get(url, Options, (res) =>
+                request = https.get(url, Options, (res) =>
                 {
                     let body = [];
+                    let ended = false;
+                    res.on('error', (err) =>
+                    {
+                        rejectResponse({ source: "HTTPS Catch", err: err });
+                    });
+                    res.on('aborted', () =>
+                    {
+                        rejectResponse({ source: "HTTPS Catch", err: new Error("Response aborted") });
+                    });
+                    res.on('close', () =>
+                    {
+                        if (!ended)
+                        {
+                            rejectResponse({ source: "HTTPS Catch", err: new Error("Response closed before completion") });
+                        }
+                    });
                     res.on('data', (chunk) =>
                     {
                         body.push(chunk);
                     });
                     res.on('end', () =>
                     {
+                        ended = true;
                         if (res.statusCode === 200)
                         {
-                            resolve(
-                                Buffer.concat(body).toString()
-                            );
+                            try
+                            {
+                                resolveResponse(Buffer.concat(body).toString());
+                            }
+                            catch (err)
+                            {
+                                rejectResponse({ source: "HTTPS Catch", err: err });
+                            }
                         }
                         else
                         {
@@ -428,23 +527,19 @@ class MyApp extends Homey.App
                             {
                                 message = "Not Found";
                             }
-                            reject({ source: "HTTPS Error", code: res.statusCode, message: message });
+                            rejectResponse({ source: "HTTPS Error", code: res.statusCode, message: message });
                         }
                     });
                 }).on('error', (err) =>
                 {
                     //console.log("HTTPS Catch: ", err);
-                    reject({ source: "HTTPS Catch", err: err });
-                }).on('timeout', (err) =>
-                {
-                    //console.log("HTTPS Catch: ", err);
-                    reject({ source: "HTTPS Catch", err: err });
+                    rejectResponse({ source: "HTTPS Catch", err: err });
                 });
             }
             catch (e)
             {
                 //console.log(e);
-                reject({ source: "HTTPS Try Catch", err: e });
+                rejectResponse({ source: "HTTPS Try Catch", err: e });
             }
         });
     }

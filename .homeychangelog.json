@@ -70,6 +70,12 @@
   },
   "4.0.3": {
     "en": "Fix for new URL format of apps."
+  },
+  "4.0.4": {
+    "en": "Fixed issue with test version detection."
+  },
+  "4.0.5": {
+    "en": "Added test for timed-out store check releasing the lock. Added error handling for failed store checks."
   }
 }
 
